@@ -22,7 +22,7 @@ const styles = `
   .topbar { margin-bottom: 2rem; }
   .topbar h1 { font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 300; color: #1c3829; letter-spacing: -0.02em; }
   .topbar p { font-size: 13px; color: #8a8378; margin-top: 3px; }
-  .grid { display: flex; flex-direction: column; gap: 16px; }
+  .grid { display: grid; grid-template-columns: 420px 1fr; gap: 16px; align-items: start; }
   .card { background: #fff; border: 0.5px solid #e8e4dc; border-radius: 16px; overflow: hidden; }
   .card-header { padding: 1.25rem 1.5rem; border-bottom: 0.5px solid #e8e4dc; }
   .card-title { font-size: 15px; font-weight: 500; color: #1c3829; }
