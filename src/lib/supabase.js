@@ -4,8 +4,8 @@
 
 import { createClient } from '@supabase/supabase-js'
 
-const SUPABASE_URL = 'https://SENIN_PROJE_ID.supabase.co'
-const SUPABASE_ANON_KEY = 'SENIN_ANON_KEY'
+const SUPABASE_URL = 'https://ofybcwzlvtrzyqpgfqmm.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9meWJjd3psdnRyenlxcGdmcW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxOTkwNDAsImV4cCI6MjA4OTc3NTA0MH0.NLSb2ONPoNaU0H5ZBpOcM37TgGBw3vo2uBgmo7enzEE'
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
