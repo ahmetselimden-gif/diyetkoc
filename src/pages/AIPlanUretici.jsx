@@ -104,6 +104,7 @@ Her gün için: GÜN N - Kahvaltı, Ara Öğün, Öğle, Ara Öğün, Akşam for
       clearInterval(interval);
       const data = await response.json();
       const text = data?.content?.[0]?.text || data?.completion || JSON.stringify(data);
+      alert(text);
       setStreamText(text);
       setStatus("done");
     } catch(err) {
