@@ -54,8 +54,6 @@ const styles = `
   .btn-sm.solid { border: none; background: #1c3829; color: #f5f2ec; }
   .plan-content { padding: 1.5rem; overflow-y: auto; max-height: 640px; }
   .streaming-text { white-space: pre-wrap; font-size: 14px; color: #3a3732; line-height: 1.8; }
-  .cursor { display: inline-block; width: 2px; height: 16px; background: #1c3829; margin-left: 2px; animation: blink 1s step-end infinite; vertical-align: middle; }
-  @keyframes blink { 50% { opacity: 0; } }
   .loading-box { padding: 3rem 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; min-height: 400px; justify-content: center; }
   .spinner { width: 40px; height: 40px; border: 2px solid #e8e4dc; border-top-color: #1c3829; border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -84,7 +82,6 @@ Hedef: ${form.hedef}, Aktivite: ${form.aktivite}, Kalori: ${form.kalori} kcal
 ${allergies.length?`Alerjiler: ${allergies.join(", ")}`:""}
 ${restrictions.length?`Kısıtlamalar: ${restrictions.join(", ")}`:""}
 ${form.notlar?`Notlar: ${form.notlar}`:""}
-
 Her gün için: GÜN N - Kahvaltı, Ara Öğün, Öğle, Ara Öğün, Akşam formatında yaz. Türk gıdaları kullan.`;
 
   const handleGenerate = async () => {
@@ -96,30 +93,22 @@ Her gün için: GÜN N - Kahvaltı, Ara Öğün, Öğle, Ara Öğün, Akşam for
     const interval = setInterval(() => { i=(i+1)%steps.length; setLoadStep(steps[i]); }, 900);
     try {
       const response = await fetch("/api/generate", {
-        method:"POST",
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:2000, stream:true, messages:[{role:"user",content:buildPrompt()}] })
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 2000,
+          messages: [{ role: "user", content: buildPrompt() }]
+        })
       });
       clearInterval(interval);
-      setStatus("streaming");
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let full = "";
-      while(true) {
-        const {done, value} = await reader.read();
-        if(done) break;
-        const lines = decoder.decode(value).split("\n").filter(l=>l.startsWith("data: "));
-        for(const line of lines) {
-          try {
-            const data = JSON.parse(line.slice(6));
-            if(data.type==="content_block_delta"&&data.delta?.text) { full+=data.delta.text; setStreamText(full); }
-          } catch{}
-        }
-      }
+      const data = await response.json();
+      const text = data.content[0].text;
+      setStreamText(text);
       setStatus("done");
     } catch(err) {
       clearInterval(interval);
-      setStreamText("Bağlantı hatası. Lütfen tekrar deneyin.");
+      setStreamText("Hata oluştu: " + err.message);
       setStatus("done");
     }
   };
@@ -169,8 +158,8 @@ Her gün için: GÜN N - Kahvaltı, Ara Öğün, Öğle, Ara Öğün, Akşam for
                 <div className="field"><label>Alerjiler</label><div className="toggle-group">{ALLERGIES.map(a=><button key={a} className={`toggle-btn ${allergies.includes(a)?"on":""}`} onClick={()=>toggle(allergies,setAllergies,a)}>{a}</button>)}</div></div>
                 <div className="field"><label>Kısıtlamalar</label><div className="toggle-group">{RESTRICTIONS.map(r=><button key={r} className={`toggle-btn ${restrictions.includes(r)?"on":""}`} onClick={()=>toggle(restrictions,setRestrictions,r)}>{r}</button>)}</div></div>
                 <div className="field"><label>Ek Notlar</label><textarea rows={3} placeholder="Örn: Hasta ofiste çalışıyor..." value={form.notlar} onChange={e=>setForm({...form,notlar:e.target.value})} /></div>
-                <button className="btn-generate" onClick={handleGenerate} disabled={status==="loading"||status==="streaming"}>
-                  {status==="loading"||status==="streaming"?"⏳ Üretiliyor...":"✦ AI ile Plan Üret"}
+                <button className="btn-generate" onClick={handleGenerate} disabled={status==="loading"}>
+                  {status==="loading"?"⏳ Üretiliyor...":"✦ AI ile Plan Üret"}
                 </button>
               </div>
             </div>
@@ -178,7 +167,7 @@ Her gün için: GÜN N - Kahvaltı, Ara Öğün, Öğle, Ara Öğün, Akşam for
             <div className="card">
               {status==="idle"&&<div className="output-empty"><div className="empty-icon">◈</div><div className="empty-title">Plan burada görünecek</div><div className="empty-sub">Hasta bilgilerini doldurup butona bas</div></div>}
               {status==="loading"&&<div className="loading-box"><div className="spinner"></div><div className="loading-text"><div className="loading-step">{loadStep}</div><div style={{marginTop:6}}>AI planı hazırlıyor...</div></div></div>}
-              {(status==="streaming"||status==="done")&&(
+              {status==="done"&&(
                 <>
                   <div className="output-header">
                     <div className="output-meta">
@@ -186,10 +175,13 @@ Her gün için: GÜN N - Kahvaltı, Ara Öğün, Öğle, Ara Öğün, Akşam for
                       <span className="meta-pill blue">{form.kalori} kcal/gün</span>
                       <span className="meta-pill amber">{form.sure} günlük</span>
                     </div>
-                    {status==="done"&&<div className="output-actions"><button className="btn-sm outline" onClick={()=>navigator.clipboard.writeText(streamText)}>📋 Kopyala</button><button className="btn-sm solid">📤 PDF</button></div>}
+                    <div className="output-actions">
+                      <button className="btn-sm outline" onClick={()=>navigator.clipboard.writeText(streamText)}>📋 Kopyala</button>
+                      <button className="btn-sm solid">📤 PDF</button>
+                    </div>
                   </div>
-                  <div className="plan-content"><div className="streaming-text">{streamText}{status==="streaming"&&<span className="cursor"></span>}</div></div>
-                  {status==="done"&&<div className="note-box">💡 Bu plan AI tarafından oluşturulmuştur. Klinik değerlendirme ile birlikte kullanınız.</div>}
+                  <div className="plan-content"><div className="streaming-text">{streamText}</div></div>
+                  <div className="note-box">💡 Bu plan AI tarafından oluşturulmuştur. Klinik değerlendirme ile birlikte kullanınız.</div>
                 </>
               )}
             </div>
