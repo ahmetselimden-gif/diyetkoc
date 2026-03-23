@@ -111,7 +111,7 @@ Her gün için: GÜN N - Kahvaltı, Ara Öğün, Öğle, Ara Öğün, Akşam for
       
       // Claude API'den gelen metni güvenli bir şekilde alalım
       // data.content[0].text yapısı bazen data.text olarak gelebilir, ikisini de kontrol ediyoruz:
-      const generatedPlan = data?.content?.[0]?.text || data?.text || "Plan içeriği alınamadı.";
+      const generatedPlan = data?.text || "Plan alınamadı";
       
       setStreamText(generatedPlan);
       setStatus("done");
