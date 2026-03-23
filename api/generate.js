@@ -1,48 +1,46 @@
 module.exports = async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).end();
+
   try {
-    const { messages } = req.body;
+    const { ad, yas, cinsiyet, kilo, boy, hedef, aktivite, kalori, sure, notlar, allergies, restrictions } = req.body;
 
-    if (!messages) {
-      return res.status(400).json({ error: "Mesaj yok" });
-    }
+    const prompt = `Sen profesyonel bir diyetisyensin. Türkçe detaylı diyet planı oluştur.
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
+HASTA: ${ad}, ${yas} yaş, ${cinsiyet}, ${kilo}kg, ${boy}cm
+HEDEF: ${hedef}, Aktivite: ${aktivite}, Kalori: ${kalori}kcal, Süre: ${sure} gün
+ALERJİLER: ${allergies?.join(', ') || 'Yok'}
+KISITLAMALAR: ${restrictions?.join(', ') || 'Yok'}
+NOTLAR: ${notlar || 'Yok'}
+
+1. Genel değerlendirme
+2. Günlük öğün planı (kahvaltı, ara öğün, öğle, ara öğün, akşam)
+3. Kaçınılacak yiyecekler
+4. Tavsiyeler`;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.REACT_APP_ANTHROPIC_KEY,
+        'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: "claude-3-haiku-20240307",
-        max_tokens: 1000,
-        messages: messages.map(m => ({
-          role: m.role,
-          content: [{ type: "text", text: m.content }]
-        })),
-      }),
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 2000,
+        messages: [{ role: 'user', content: prompt }]
+      })
     });
 
     const data = await response.json();
-
-    let text = "Plan oluşturulamadı";
-
-    if (
-      data &&
-      data.content &&
-      Array.isArray(data.content) &&
-      data.content.length > 0 &&
-      data.content[0].text
-    ) {
-      text = data.content[0].text;
-    } else {
-      console.log("API FULL RESPONSE:", JSON.stringify(data, null, 2));
-    }
-
-    return res.status(200).json({ text });
+    if (data.error) return res.status(500).json({ error: data.error.message });
+    res.status(200).json({ output: data.content[0].text });
 
   } catch (err) {
-    console.error("SERVER HATA:", err);
-    return res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
