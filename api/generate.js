@@ -1,7 +1,5 @@
 module.exports = async function handler(req, res) {
   try {
-    console.log("ENV KEY:", process.env.ANTHROPIC_API_KEY);
-
     const { messages } = req.body;
 
     if (!messages) {
@@ -18,22 +16,18 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({
         model: "claude-3-5-sonnet-20241022",
         max_tokens: 1000,
-        messages,
+        messages: messages,
       }),
     });
 
     const data = await response.json();
 
-    console.log("API RESPONSE:", data);
+    const text = data?.content?.[0]?.text || "Plan oluşturulamadı";
 
-    return res.status(200).json({
-      text: data?.content?.[0]?.text || JSON.stringify(data),
-    });
+    return res.status(200).json({ text });
 
   } catch (err) {
-    console.error("SERVER HATA:", err);
-    return res.status(500).json({
-      error: err.message,
-    });
+    console.error("HATA:", err);
+    return res.status(500).json({ error: err.message });
   }
 };
