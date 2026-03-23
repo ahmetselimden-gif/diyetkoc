@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -9,22 +9,14 @@ export default async function handler(req, res) {
   try {
     const { ad, yas, cinsiyet, kilo, boy, hedef, aktivite, kalori, sure, notlar, allergies, restrictions } = req.body;
 
-    const prompt = `Sen profesyonel bir diyetisyensin. Aşağıdaki hasta bilgilerine göre detaylı Türkçe diyet planı oluştur.
+    const prompt = `Sen profesyonel bir diyetisyensin. Türkçe detaylı diyet planı oluştur.
 
-HASTA BİLGİLERİ:
-- Ad Soyad: ${ad || 'Belirtilmedi'}
-- Yaş: ${yas || 'Belirtilmedi'}
-- Cinsiyet: ${cinsiyet}
-- Kilo: ${kilo} kg / Boy: ${boy} cm
-- Hedef: ${hedef}
-- Aktivite: ${aktivite}
-- Günlük Kalori: ${kalori} kcal
-- Süre: ${sure} gün
-- Alerjiler: ${allergies?.length > 0 ? allergies.join(', ') : 'Yok'}
-- Kısıtlamalar: ${restrictions?.length > 0 ? restrictions.join(', ') : 'Yok'}
-- Notlar: ${notlar || 'Yok'}
+HASTA: ${ad}, ${yas} yaş, ${cinsiyet}, ${kilo}kg, ${boy}cm
+HEDEF: ${hedef}, Aktivite: ${aktivite}, Kalori: ${kalori}kcal, Süre: ${sure} gün
+ALERJİLER: ${allergies?.join(', ') || 'Yok'}
+KISITLAMALAR: ${restrictions?.join(', ') || 'Yok'}
+NOTLAR: ${notlar || 'Yok'}
 
-Şunları içeren detaylı plan yaz:
 1. Genel değerlendirme
 2. Günlük öğün planı (kahvaltı, ara öğün, öğle, ara öğün, akşam)
 3. Kaçınılacak yiyecekler
@@ -45,9 +37,4 @@ HASTA BİLGİLERİ:
     });
 
     const data = await response.json();
-
-    if (data.error) {
-      return res.status(500).json({ error: data.error.message });
-    }
-
-    res.status
+    if (data.error) return res.status(500).json({ error: data.error.messa
