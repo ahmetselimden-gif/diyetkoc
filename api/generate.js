@@ -16,13 +16,15 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({
         model: "claude-3-5-sonnet-20241022",
         max_tokens: 1000,
-        messages: messages,
+        messages: messages.map(m => ({
+          role: m.role,
+          content: [{ type: "text", text: m.content }]
+        })),
       }),
     });
 
     const data = await response.json();
 
-    // 🔥 EN ÖNEMLİ KISIM (SAĞLAM PARSE)
     let text = "Plan oluşturulamadı";
 
     if (
