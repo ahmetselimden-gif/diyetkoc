@@ -2,28 +2,158 @@
 'use client';
 import { useState } from "react";
 
+const styles = `
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300&family=DM+Sans:wght@300;400;500;600&display=swap');
+  
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body { font-family: 'DM Sans', sans-serif; background: #f5f2ec; }
+  
+  .ap-layout { display: flex; min-height: 100vh; }
+  
+  .ap-sidebar {
+    width: 220px; min-height: 100vh; background: #1c3829;
+    padding: 1.5rem 1rem; display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0; bottom: 0;
+  }
+  .ap-logo { display: flex; align-items: center; gap: 10px; padding: 0 0.5rem; margin-bottom: 2rem; }
+  .ap-logo-mark { width: 32px; height: 32px; border-radius: 8px; background: #a8d5a2; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-size: 15px; color: #1c3829; font-weight: 500; }
+  .ap-logo-text { font-family: 'Fraunces', serif; font-size: 17px; color: #f5f2ec; font-weight: 400; }
+  .ap-nav-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(245,242,236,0.35); padding: 0 0.75rem 0.5rem; }
+  .ap-nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; font-size: 13px; color: rgba(245,242,236,0.6); cursor: pointer; margin-bottom: 2px; transition: all 0.15s; }
+  .ap-nav-item.active { background: rgba(168,213,162,0.15); color: #a8d5a2; }
+  .ap-sidebar-bottom { margin-top: auto; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1rem; display: flex; align-items: center; gap: 10px; }
+  .ap-avatar { width: 34px; height: 34px; border-radius: 50%; background: #a8d5a2; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #1c3829; flex-shrink: 0; }
+  .ap-user-name { font-size: 13px; color: #f5f2ec; font-weight: 500; }
+  .ap-user-role { font-size: 11px; color: rgba(245,242,236,0.4); }
+
+  .ap-main { margin-left: 220px; flex: 1; padding: 2.5rem 2rem; min-height: 100vh; display: flex; flex-direction: column; }
+  
+  .ap-header { margin-bottom: 2rem; }
+  .ap-header h1 { font-family: 'Fraunces', serif; font-size: 1.8rem; font-weight: 300; color: #1c3829; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
+  .ap-header p { font-size: 13px; color: #8a8378; margin-top: 5px; }
+  .ap-spark { color: #4a7c59; }
+
+  .ap-grid { display: grid; grid-template-columns: 400px 1fr; gap: 20px; align-items: start; flex: 1; }
+
+  .ap-card { background: #fff; border: 1px solid #e8e4dc; border-radius: 18px; overflow: hidden; }
+  
+  .ap-card-head { padding: 1.25rem 1.5rem; border-bottom: 1px solid #f0ece4; }
+  .ap-card-head h2 { font-size: 14px; font-weight: 600; color: #1c3829; }
+  .ap-card-head p { font-size: 12px; color: #a09890; margin-top: 2px; }
+  
+  .ap-card-body { padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 14px; }
+
+  .ap-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .ap-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+  .ap-field label { display: block; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #7a746e; margin-bottom: 5px; }
+  .ap-field input, .ap-field select, .ap-field textarea {
+    width: 100%; padding: 10px 12px; border: 1.5px solid #e4dfd5;
+    border-radius: 10px; background: #faf9f6; font-family: 'DM Sans', sans-serif;
+    font-size: 13px; color: #1c3829; outline: none; transition: border-color 0.15s;
+    appearance: none; -webkit-appearance: none; resize: vertical;
+  }
+  .ap-field input:focus, .ap-field select:focus, .ap-field textarea:focus { border-color: #1c3829; background: #fff; }
+  .ap-field textarea { min-height: 70px; }
+
+  .ap-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ap-tag {
+    padding: 5px 12px; border-radius: 100px; border: 1.5px solid #e4dfd5;
+    background: #faf9f6; font-size: 12px; color: #6b6560; cursor: pointer;
+    transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+  }
+  .ap-tag.on { border-color: #1c3829; background: #1c3829; color: #f5f2ec; }
+
+  .ap-divider { height: 1px; background: #f0ece4; margin: 2px 0; }
+
+  .ap-btn {
+    width: 100%; padding: 13px; border: none; border-radius: 12px;
+    background: #1c3829; font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 600; color: #f5f2ec;
+    cursor: pointer; transition: all 0.15s; letter-spacing: 0.01em;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .ap-btn:hover:not(:disabled) { background: #234a33; transform: translateY(-1px); }
+  .ap-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+  /* Output Panel */
+  .ap-output-empty {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; min-height: 500px; padding: 3rem; text-align: center;
+  }
+  .ap-empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.2; }
+  .ap-empty-title { font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 300; color: #1c3829; margin-bottom: 6px; }
+  .ap-empty-sub { font-size: 13px; color: #b5afa7; line-height: 1.6; max-width: 280px; }
+
+  .ap-loading {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; min-height: 500px; padding: 3rem; gap: 1.5rem;
+  }
+  .ap-spinner {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 2px solid #e8e4dc; border-top-color: #1c3829;
+    animation: ap-spin 0.75s linear infinite;
+  }
+  @keyframes ap-spin { to { transform: rotate(360deg); } }
+  .ap-load-step { font-size: 13px; color: #8a8378; text-align: center; }
+  .ap-load-step strong { display: block; font-size: 15px; color: #1c3829; font-weight: 500; margin-bottom: 4px; font-family: 'Fraunces', serif; }
+
+  .ap-output-head {
+    padding: 1.25rem 1.5rem; border-bottom: 1px solid #f0ece4;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  }
+  .ap-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .ap-pill { padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
+  .ap-pill.green { background: #eaf4e3; color: #3a6b1e; }
+  .ap-pill.blue { background: #e3eef9; color: #1a5490; }
+  .ap-pill.amber { background: #fdf0d9; color: #8a5a00; }
+  .ap-actions { display: flex; gap: 8px; }
+  .ap-action-btn { padding: 7px 14px; border-radius: 9px; font-size: 12px; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.15s; }
+  .ap-action-btn.outline { border: 1.5px solid #e4dfd5; background: #fff; color: #1c3829; }
+  .ap-action-btn.outline:hover { border-color: #1c3829; }
+  .ap-action-btn.solid { border: none; background: #1c3829; color: #f5f2ec; }
+  .ap-action-btn.solid:hover { background: #234a33; }
+
+  .ap-plan-body { padding: 1.5rem; overflow-y: auto; max-height: 580px; }
+  .ap-plan-text { white-space: pre-wrap; font-size: 14px; color: #3a3730; line-height: 1.85; }
+
+  .ap-error { padding: 1.5rem; }
+  .ap-error-box { background: #fff5f5; border: 1px solid #fecdcd; border-radius: 12px; padding: 1rem 1.25rem; }
+  .ap-error-box p { font-size: 13px; color: #c53030; line-height: 1.6; }
+
+  .ap-footer { margin-top: auto; padding: 2rem 0 1rem; border-top: 1px solid #e8e4dc; text-align: center; }
+  .ap-footer p { font-size: 11px; color: #b5afa7; }
+  .ap-footer-links { display: flex; justify-content: center; gap: 16px; margin-top: 8px; }
+  .ap-footer-links a { font-size: 11px; color: #6b6560; text-decoration: none; }
+  .ap-footer-links a:hover { color: #1c3829; }
+`;
+
 const ALLERGIES = ["Gluten","Laktoz","Fıstık","Yumurta","Balık","Soya"];
 const RESTRICTIONS = ["Et yok","Vegan","Helal","Diyabetik","Düşük sodyum"];
-const HEDEFLER = ["Kilo verme","Kilo alma","Kas yapma","Sağlıklı beslenme","Form koruma"];
-const AKTIVITELER = ["Sedanter (hareketsiz)","Hafif aktif","Orta aktif","Çok aktif"];
+const GOALS = ["kilo-verme","kas-yapma","sağlıklı-beslenme","form-koruma","spor-performansı"];
+const GOAL_LABELS = {"kilo-verme":"Kilo Verme","kas-yapma":"Kas Yapma","sağlıklı-beslenme":"Sağlıklı Beslenme","form-koruma":"Form Koruma","spor-performansı":"Spor Performansı"};
+const ACTIVITIES = ["düşük","orta","aktif","çok aktif"];
 
 export default function AIPlanUretici() {
   const [form, setForm] = useState({
     ad:"", yas:"", cinsiyet:"Kadın", kilo:"", boy:"",
-    hedef:"Kilo verme", aktivite:"Orta aktif", kalori:"1500", sure:"7", notlar:""
+    hedef:"kilo-verme", aktivite:"orta", kalori:"1500", sure:"7", notlar:""
   });
   const [allergies, setAllergies] = useState([]);
   const [restrictions, setRestrictions] = useState([]);
-  const [status, setStatus] = useState("idle");
-  const [output, setOutput] = useState("");
+  const [status, setStatus] = useState("idle"); // idle | loading | done | error
+  const [planText, setPlanText] = useState("");
   const [loadStep, setLoadStep] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const toggle = (arr, setArr, val) =>
     setArr(arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val]);
 
   const handleGenerate = async () => {
     setStatus("loading");
-    setOutput("");
+    setPlanText("");
+    setErrorMsg("");
     const steps = [
       "Profil analiz ediliyor...",
       "Kalori hesaplanıyor...",
@@ -32,10 +162,7 @@ export default function AIPlanUretici() {
     ];
     let i = 0;
     setLoadStep(steps[0]);
-    const interval = setInterval(() => {
-      i = (i + 1) % steps.length;
-      setLoadStep(steps[i]);
-    }, 900);
+    const interval = setInterval(() => { i = (i + 1) % steps.length; setLoadStep(steps[i]); }, 1000);
 
     try {
       const res = await fetch("/api/generate", {
@@ -43,207 +170,215 @@ export default function AIPlanUretici() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, allergies, restrictions })
       });
-      const data = await res.json();
       clearInterval(interval);
-      if (data.error) {
-        setOutput("Hata: " + data.error);
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        setErrorMsg(data.error || "Sunucu hatası oluştu.");
+        setStatus("error");
       } else {
-        setOutput(data.output || "Plan üretilemedi.");
+        setPlanText(data.output || "Plan üretilemedi.");
+        setStatus("done");
       }
-      setStatus("done");
     } catch (err) {
       clearInterval(interval);
-      setOutput("Bağlantı hatası: " + err.message);
-      setStatus("done");
+      setErrorMsg(err.message);
+      setStatus("error");
     }
   };
 
-  const s = {
-    wrap: { display:"flex", minHeight:"100vh", fontFamily:"'DM Sans',sans-serif", background:"#f5f2ec" },
-    sidebar: { width:220, background:"#1c3829", padding:"1.5rem 1rem", display:"flex", flexDirection:"column", gap:"1.5rem", position:"fixed", top:0, left:0, bottom:0 },
-    logo: { display:"flex", alignItems:"center", gap:10 },
-    logoMark: { width:34, height:34, borderRadius:8, background:"#a8d5a2", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:700, color:"#1c3829", fontSize:14 },
-    logoText: { color:"#f5f2ec", fontSize:17, fontWeight:500 },
-    navItem: { display:"flex", alignItems:"center", gap:10, padding:"10px 12px", borderRadius:10, color:"#a8d5a2", background:"rgba(168,213,162,0.15)", fontSize:14, cursor:"pointer" },
-    sideUser: { marginTop:"auto", borderTop:"1px solid rgba(255,255,255,0.1)", paddingTop:"1rem", display:"flex", alignItems:"center", gap:10 },
-    avatar: { width:36, height:36, borderRadius:"50%", background:"#a8d5a2", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:600, color:"#1c3829", fontSize:13 },
-    main: { marginLeft:220, padding:"2rem", flex:1, maxWidth:1100 },
-    title: { fontSize:26, fontWeight:300, color:"#1c3829", marginBottom:4 },
-    sub: { fontSize:13, color:"#8a8378", marginBottom:"1.5rem" },
-    grid: { display:"grid", gridTemplateColumns:"420px 1fr", gap:20, alignItems:"start" },
-    card: { background:"#fff", border:"1px solid #e8e4dc", borderRadius:16, overflow:"hidden" },
-    cardHead: { padding:"1rem 1.5rem", borderBottom:"1px solid #e8e4dc" },
-    cardTitle: { fontSize:15, fontWeight:600, color:"#1c3829" },
-    cardBody: { padding:"1.25rem 1.5rem" },
-    label: { display:"block", fontSize:11, fontWeight:600, color:"#5a5650", letterSpacing:"0.06em", textTransform:"uppercase", marginBottom:5 },
-    input: { width:"100%", padding:"10px 13px", border:"1.5px solid #ddd9d0", borderRadius:10, background:"#faf9f6", fontFamily:"inherit", fontSize:14, color:"#1c3829", outline:"none", boxSizing:"border-box" },
-    select: { width:"100%", padding:"10px 13px", border:"1.5px solid #ddd9d0", borderRadius:10, background:"#faf9f6", fontFamily:"inherit", fontSize:14, color:"#1c3829", outline:"none", appearance:"none" },
-    textarea: { width:"100%", padding:"10px 13px", border:"1.5px solid #ddd9d0", borderRadius:10, background:"#faf9f6", fontFamily:"inherit", fontSize:14, color:"#1c3829", outline:"none", resize:"vertical", minHeight:70, boxSizing:"border-box" },
-    row2: { display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:"1rem" },
-    row3: { display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:"1rem" },
-    field: { marginBottom:"1rem" },
-    toggleGroup: { display:"flex", flexWrap:"wrap", gap:6 },
-    toggleOn: { padding:"6px 14px", borderRadius:100, border:"1.5px solid #1c3829", background:"#1c3829", color:"#f5f2ec", fontSize:12, cursor:"pointer", fontFamily:"inherit" },
-    toggleOff: { padding:"6px 14px", borderRadius:100, border:"1.5px solid #ddd9d0", background:"#faf9f6", color:"#5a5650", fontSize:12, cursor:"pointer", fontFamily:"inherit" },
-    btnGenerate: { width:"100%", padding:"14px", border:"none", borderRadius:12, background:"#1c3829", color:"#f5f2ec", fontSize:15, fontWeight:600, cursor:"pointer", marginTop:"0.75rem", fontFamily:"inherit" },
-    btnDisabled: { width:"100%", padding:"14px", border:"none", borderRadius:12, background:"#1c3829", color:"#f5f2ec", fontSize:15, fontWeight:600, cursor:"not-allowed", marginTop:"0.75rem", fontFamily:"inherit", opacity:0.6 },
-    emptyBox: { display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"4rem 2rem", textAlign:"center", minHeight:400, color:"#b5b0a7" },
-    loadBox: { display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minHeight:400, gap:"1rem" },
-    spinner: { width:40, height:40, border:"3px solid #e8e4dc", borderTopColor:"#1c3829", borderRadius:"50%", animation:"spin 0.8s linear infinite" },
-    planBox: { padding:"1.5rem", overflowY:"auto", maxHeight:700, whiteSpace:"pre-wrap", fontSize:14, color:"#2a2723", lineHeight:1.85 },
-    footer: { marginTop:"2rem", paddingTop:"1.5rem", borderTop:"1px solid #e8e4dc", textAlign:"center", fontSize:12, color:"#8a8378" },
-    footerLinks: { display:"flex", justifyContent:"center", gap:15, marginTop:8 },
-    footerLink: { color:"#1c3829", textDecoration:"none", opacity:0.7 }
-  };
+  const handleCopy = () => { navigator.clipboard.writeText(planText); };
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        input:focus, select:focus, textarea:focus { border-color: #1c3829 !important; }
-      `}</style>
-      <div style={s.wrap}>
+      <style>{styles}</style>
+      <div className="ap-layout">
         {/* Sidebar */}
-        <div style={s.sidebar}>
-          <div style={s.logo}>
-            <div style={s.logoMark}>DP</div>
-            <span style={s.logoText}>DiyetPro AI</span>
+        <div className="ap-sidebar">
+          <div className="ap-logo">
+            <div className="ap-logo-mark">DP</div>
+            <span className="ap-logo-text">DiyetPro AI</span>
           </div>
-          <div>
-            <div style={{ fontSize:10, color:"rgba(245,242,236,0.35)", letterSpacing:"0.1em", textTransform:"uppercase", padding:"0 12px", marginBottom:6 }}>Uygulama</div>
-            <div style={s.navItem}>◈ AI Plan Üret</div>
-          </div>
-          <div style={s.sideUser}>
-            <div style={s.avatar}>DP</div>
+          <div className="ap-nav-label">Uygulama</div>
+          <div className="ap-nav-item active">◈ AI Plan Üret</div>
+          <div className="ap-sidebar-bottom">
+            <div className="ap-avatar">DP</div>
             <div>
-              <div style={{ fontSize:13, fontWeight:500, color:"#f5f2ec" }}>Misafir Kullanıcı</div>
-              <div style={{ fontSize:11, color:"rgba(245,242,236,0.4)" }}>Premium Üye</div>
+              <div className="ap-user-name">Misafir Kullanıcı</div>
+              <div className="ap-user-role">Premium Üye</div>
             </div>
           </div>
         </div>
 
         {/* Main */}
-        <div style={s.main}>
-          <h1 style={s.title}>✦ AI Plan Üretici</h1>
-          <p style={s.sub}>Hasta bilgilerini gir, yapay zeka ile saniyeler içinde kişisel diyet planı oluştur</p>
+        <div className="ap-main">
+          <div className="ap-header">
+            <h1><span className="ap-spark">✦</span> AI Plan Üretici</h1>
+            <p>Hasta bilgilerini gir, yapay zeka saniyeler içinde kişiselleştirilmiş diyet planını oluştursun</p>
+          </div>
 
-          <div style={s.grid}>
-            {/* Form */}
-            <div style={s.card}>
-              <div style={s.cardHead}><span style={s.cardTitle}>Hasta Bilgileri</span></div>
-              <div style={s.cardBody}>
-                <div style={s.row2}>
-                  <div style={s.field}>
-                    <label style={s.label}>Ad Soyad</label>
-                    <input style={s.input} placeholder="Ayşe Kaya" value={form.ad} onChange={e => setForm({...form, ad:e.target.value})} />
+          <div className="ap-grid">
+            {/* Form Card */}
+            <div className="ap-card">
+              <div className="ap-card-head">
+                <h2>Hasta Bilgileri</h2>
+                <p>Tüm alanları doldurarak daha iyi sonuç alın</p>
+              </div>
+              <div className="ap-card-body">
+                <div className="ap-row2">
+                  <div className="ap-field">
+                    <label>Ad Soyad</label>
+                    <input placeholder="Ayşe Kaya" value={form.ad} onChange={e=>setForm({...form,ad:e.target.value})} />
                   </div>
-                  <div style={s.field}>
-                    <label style={s.label}>Yaş</label>
-                    <input style={s.input} type="number" placeholder="32" value={form.yas} onChange={e => setForm({...form, yas:e.target.value})} />
+                  <div className="ap-field">
+                    <label>Yaş</label>
+                    <input type="number" placeholder="32" value={form.yas} onChange={e=>setForm({...form,yas:e.target.value})} />
                   </div>
                 </div>
 
-                <div style={s.row3}>
-                  <div style={s.field}>
-                    <label style={s.label}>Cinsiyet</label>
-                    <select style={s.select} value={form.cinsiyet} onChange={e => setForm({...form, cinsiyet:e.target.value})}>
+                <div className="ap-row3">
+                  <div className="ap-field">
+                    <label>Cinsiyet</label>
+                    <select value={form.cinsiyet} onChange={e=>setForm({...form,cinsiyet:e.target.value})}>
                       <option>Kadın</option>
                       <option>Erkek</option>
                     </select>
                   </div>
-                  <div style={s.field}>
-                    <label style={s.label}>Kilo (kg)</label>
-                    <input style={s.input} type="number" placeholder="65" value={form.kilo} onChange={e => setForm({...form, kilo:e.target.value})} />
+                  <div className="ap-field">
+                    <label>Kilo (kg)</label>
+                    <input type="number" placeholder="68" value={form.kilo} onChange={e=>setForm({...form,kilo:e.target.value})} />
                   </div>
-                  <div style={s.field}>
-                    <label style={s.label}>Boy (cm)</label>
-                    <input style={s.input} type="number" placeholder="165" value={form.boy} onChange={e => setForm({...form, boy:e.target.value})} />
+                  <div className="ap-field">
+                    <label>Boy (cm)</label>
+                    <input type="number" placeholder="165" value={form.boy} onChange={e=>setForm({...form,boy:e.target.value})} />
                   </div>
                 </div>
 
-                <div style={s.row2}>
-                  <div style={s.field}>
-                    <label style={s.label}>Hedef</label>
-                    <select style={s.select} value={form.hedef} onChange={e => setForm({...form, hedef:e.target.value})}>
-                      {HEDEFLER.map(h => <option key={h}>{h}</option>)}
+                <div className="ap-divider" />
+
+                <div className="ap-field">
+                  <label>Hedef</label>
+                  <div className="ap-tags">
+                    {GOALS.map(g => (
+                      <button key={g} type="button"
+                        className={`ap-tag ${form.hedef===g?"on":""}`}
+                        onClick={()=>setForm({...form,hedef:g})}>
+                        {GOAL_LABELS[g]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="ap-row3">
+                  <div className="ap-field">
+                    <label>Aktivite</label>
+                    <select value={form.aktivite} onChange={e=>setForm({...form,aktivite:e.target.value})}>
+                      {ACTIVITIES.map(a=><option key={a}>{a}</option>)}
                     </select>
                   </div>
-                  <div style={s.field}>
-                    <label style={s.label}>Aktivite</label>
-                    <select style={s.select} value={form.aktivite} onChange={e => setForm({...form, aktivite:e.target.value})}>
-                      {AKTIVITELER.map(a => <option key={a}>{a}</option>)}
-                    </select>
+                  <div className="ap-field">
+                    <label>Kalori (kcal)</label>
+                    <input type="number" placeholder="1500" value={form.kalori} onChange={e=>setForm({...form,kalori:e.target.value})} />
+                  </div>
+                  <div className="ap-field">
+                    <label>Süre (gün)</label>
+                    <input type="number" placeholder="7" value={form.sure} onChange={e=>setForm({...form,sure:e.target.value})} />
                   </div>
                 </div>
 
-                <div style={s.row2}>
-                  <div style={s.field}>
-                    <label style={s.label}>Günlük Kalori</label>
-                    <input style={s.input} type="number" placeholder="1500" value={form.kalori} onChange={e => setForm({...form, kalori:e.target.value})} />
-                  </div>
-                  <div style={s.field}>
-                    <label style={s.label}>Süre (gün)</label>
-                    <input style={s.input} type="number" placeholder="7" value={form.sure} onChange={e => setForm({...form, sure:e.target.value})} />
-                  </div>
-                </div>
+                <div className="ap-divider" />
 
-                <div style={s.field}>
-                  <label style={s.label}>Alerjiler</label>
-                  <div style={s.toggleGroup}>
-                    {ALLERGIES.map(a => (
+                <div className="ap-field">
+                  <label>Alerjiler</label>
+                  <div className="ap-tags">
+                    {ALLERGIES.map(a=>(
                       <button key={a} type="button"
-                        style={allergies.includes(a) ? s.toggleOn : s.toggleOff}
-                        onClick={() => toggle(allergies, setAllergies, a)}>{a}</button>
+                        className={`ap-tag ${allergies.includes(a)?"on":""}`}
+                        onClick={()=>toggle(allergies,setAllergies,a)}>{a}</button>
                     ))}
                   </div>
                 </div>
 
-                <div style={s.field}>
-                  <label style={s.label}>Kısıtlamalar</label>
-                  <div style={s.toggleGroup}>
-                    {RESTRICTIONS.map(r => (
+                <div className="ap-field">
+                  <label>Kısıtlamalar</label>
+                  <div className="ap-tags">
+                    {RESTRICTIONS.map(r=>(
                       <button key={r} type="button"
-                        style={restrictions.includes(r) ? s.toggleOn : s.toggleOff}
-                        onClick={() => toggle(restrictions, setRestrictions, r)}>{r}</button>
+                        className={`ap-tag ${restrictions.includes(r)?"on":""}`}
+                        onClick={()=>toggle(restrictions,setRestrictions,r)}>{r}</button>
                     ))}
                   </div>
                 </div>
 
-                <div style={s.field}>
-                  <label style={s.label}>Ek Notlar</label>
-                  <textarea style={s.textarea} placeholder="Örn: Hasta ofiste çalışıyor, öğle yemeğine 30dk var..." value={form.notlar} onChange={e => setForm({...form, notlar:e.target.value})} />
+                <div className="ap-field">
+                  <label>Ek Notlar</label>
+                  <textarea placeholder="Örn: Hasta ofiste çalışıyor, öğle arası kısa..." value={form.notlar} onChange={e=>setForm({...form,notlar:e.target.value})} />
                 </div>
 
-                <button
-                  type="button"
-                  style={status === "loading" ? s.btnDisabled : s.btnGenerate}
-                  onClick={handleGenerate}
-                  disabled={status === "loading"}>
-                  {status === "loading" ? "⏳ Plan Üretiliyor..." : "✦ AI ile Plan Üret"}
+                <button type="button" className="ap-btn" onClick={handleGenerate} disabled={status==="loading"}>
+                  {status==="loading" ? "⏳ Üretiliyor..." : "✦ AI ile Plan Üret"}
                 </button>
               </div>
             </div>
 
-            {/* Output */}
-            <div style={s.card}>
+            {/* Output Card */}
+            <div className="ap-card">
               {status === "idle" && (
-                <div style={s.emptyBox}>
-                  <div style={{ fontSize:48, marginBottom:12 }}>◈</div>
-                  <div style={{ fontSize:16, fontWeight:500, color:"#1c3829", marginBottom:6 }}>Plan Hazır Değil</div>
-                  <div style={{ fontSize:13 }}>Hasta bilgilerini doldurun ve "AI ile Plan Üret" butonuna tıklayın</div>
+                <div className="ap-output-empty">
+                  <div className="ap-empty-icon">◈</div>
+                  <div className="ap-empty-title">Plan Burada Görünecek</div>
+                  <div className="ap-empty-sub">Hasta bilgilerini doldurup "AI ile Plan Üret" butonuna tıklayın</div>
                 </div>
               )}
+
               {status === "loading" && (
-                <div style={s.loadBox}>
-                  <div style={s.spinner}></div>
-                  <div style={{ fontSize:14, color:"#8a8378" }}>{loadStep}</div>
-                  <div style={{ fontSize:12, color:"#a8d5a2", fontWeight:500 }}>Bu işlem 10-20 saniye sürebilir</div>
+                <div className="ap-loading">
+                  <div className="ap-spinner"></div>
+                  <div className="ap-load-step">
+                    <strong>Plan Hazırlanıyor</strong>
+                    {loadStep}
+                  </div>
                 </div>
               )}
+
+              {status === "error" && (
+                <div className="ap-error">
+                  <div className="ap-error-box">
+                    <p>⚠️ Hata oluştu: {errorMsg}</p>
+                  </div>
+                </div>
+              )}
+
               {status === "done" && (
                 <>
-                  <div style={{ padding:"1rem 1.5rem", borderBottom:"1px solid #e8e4dc", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                    <span style={{ fontSize:15, fontWeight:600, color:"#1c3829" }}>📋 {form.ad || "Hasta"} - Diyet Planı</span>
-                    <button
+                  <div className="ap-output-head">
+                    <div className="ap-pills">
+                      <span className="ap-pill green">{GOAL_LABELS[form.hedef]}</span>
+                      <span className="ap-pill blue">{form.kalori} kcal</span>
+                      <span className="ap-pill amber">{form.sure} gün</span>
+                    </div>
+                    <div className="ap-actions">
+                      <button className="ap-action-btn outline" onClick={handleCopy}>Kopyala</button>
+                      <button className="ap-action-btn solid" onClick={handleGenerate}>Yenile</button>
+                    </div>
+                  </div>
+                  <div className="ap-plan-body">
+                    <div className="ap-plan-text">{planText}</div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          <footer className="ap-footer">
+            <p>© 2026 DiyetPro.net — Tüm Hakları Saklıdır.</p>
+            <div className="ap-footer-links">
+              <a href="/mesafeli-satis-sozlesmesi">Mesafeli Satış Sözleşmesi</a>
+              <a href="/iptal-ve-iade-kosullari">İptal ve İade Koşulları</a>
+              <a href="/gizlilik-politikasi">Gizlilik Politikası</a>
+            </div>
+          </footer>
+        </div>
+      </div>
+    </>
+  );
+}
