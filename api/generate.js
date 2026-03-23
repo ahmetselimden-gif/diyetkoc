@@ -37,4 +37,11 @@ NOTLAR: ${notlar || 'Yok'}
     });
 
     const data = await response.json();
-    if (data.error) return res.status(500).json({ error: data.error.messa
+
+if (data.error) {
+  return res.status(500).json({ error: data.error.message });
+}
+
+const text = data.content?.[0]?.text || "Plan oluşturulamadı";
+
+res.status(200).json({ plan: text });
