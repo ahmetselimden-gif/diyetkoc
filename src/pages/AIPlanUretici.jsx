@@ -87,10 +87,11 @@ Her gün için: GÜN N - Kahvaltı, Ara Öğün, Öğle, Ara Öğün, Akşam for
   const handleGenerate = async () => {
     setStatus("loading");
     setStreamText("");
-    const steps = ["Profil analiz ediliyor...","Kalori hesaplanıyor...","Türk gıda veritabanı taranıyor...","Plan oluşturuluyor..."];
+    const steps = ["Profil analiz ediliyor...", "Kalori hesaplanıyor...", "Türk gıda veritabanı taranıyor...", "Plan oluşturuluyor..."];
     let i = 0;
     setLoadStep(steps[0]);
-    const interval = setInterval(() => { i=(i+1)%steps.length; setLoadStep(steps[i]); }, 900);
+    const interval = setInterval(() => { i = (i + 1) % steps.length; setLoadStep(steps[i]); }, 900);
+    
     try {
       const response = await fetch("/api/generate", {
         method: "POST",
@@ -101,15 +102,24 @@ Her gün için: GÜN N - Kahvaltı, Ara Öğün, Öğle, Ara Öğün, Akşam for
           messages: [{ role: "user", content: buildPrompt() }]
         })
       });
+
       clearInterval(interval);
+
+      if (!response.ok) throw new Error("API yanıt vermedi.");
+
       const data = await response.json();
-      const text = data?.content?.[0]?.text || data?.completion || JSON.stringify(data);
-      alert(text);
-      setStreamText(text);
+      
+      // Claude API'den gelen metni güvenli bir şekilde alalım
+      // data.content[0].text yapısı bazen data.text olarak gelebilir, ikisini de kontrol ediyoruz:
+      const generatedPlan = data?.content?.[0]?.text || data?.text || "Plan içeriği alınamadı.";
+      
+      setStreamText(generatedPlan);
       setStatus("done");
-    } catch(err) {
+
+    } catch (err) {
       clearInterval(interval);
-      setStreamText("Hata oluştu: " + err.message);
+      console.error("Hata detayı:", err);
+      setStreamText("Bir hata oluştu: " + err.message);
       setStatus("done");
     }
   };
