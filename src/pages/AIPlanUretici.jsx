@@ -1,4 +1,4 @@
-'use client'; // Next.js için etkileşimli butonları çalıştırır
+'use client';
 
 import { useState } from "react";
 
@@ -38,7 +38,7 @@ const styles = `
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
   .toggle-group { display: flex; flex-wrap: wrap; gap: 6px; }
-  .toggle-btn { padding: 6px 14px; border: 1.5px solid #ddd9d0; border-radius: 100px; background: #faf9f6; font-family: 'DM Sans', sans-serif; font-size: 12px; color: #5a5650; cursor: pointer; }
+  .toggle-btn { padding: 6px 14px; border: 1.5px solid #ddd9d0; border-radius: 100px; background: #faf9f6; font-family: 'DM Sans', sans-serif; font-size: 12px; color: #5a5650; cursor: pointer; border: 1.5px solid #ddd9d0; }
   .toggle-btn.on { border-color: #1c3829; background: #1c3829; color: #f5f2ec; }
   .btn-generate { width: 100%; padding: 14px; border: none; border-radius: 12px; background: #1c3829; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; color: #f5f2ec; cursor: pointer; margin-top: 0.5rem; }
   .btn-generate:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -63,12 +63,9 @@ const styles = `
   .loading-text { font-size: 14px; color: #8a8378; text-align: center; line-height: 1.7; }
   .loading-step { font-size: 12px; color: #a8d5a2; font-weight: 500; }
   .note-box { margin: 1rem 1.5rem; padding: 12px 16px; background: #f0f5f2; border-radius: 10px; border-left: 3px solid #1c3829; font-size: 13px; color: #3a3732; line-height: 1.6; }
-
-  /* YASAL FOOTER STİLLERİ */
   .footer { margin-top: auto; padding: 40px 0 20px; border-top: 1px solid #e8e4dc; text-align: center; font-size: 12px; color: #8a8378; }
   .footer-links { display: flex; justify-content: center; gap: 15px; margin-top: 10px; }
-  .footer-links a { color: #1c3829; text-decoration: none; opacity: 0.7; }
-  .footer-links a:hover { opacity: 1; text-decoration: underline; }
+  .footer-links a { color: #1c3829; text-decoration: none; opacity: 0.7; cursor: pointer; }
 `;
 
 const ALLERGIES = ["Gluten","Laktoz","Fıstık","Yumurta","Balık","Soya"];
@@ -85,7 +82,7 @@ export default function AIPlanUretici() {
   const toggle = (arr, setArr, val) => setArr(arr.includes(val) ? arr.filter(v=>v!==val) : [...arr, val]);
 
   const handleGenerate = async (e) => {
-    if (e) e.preventDefault(); // Sayfa yenilenmesini engellemek için kritik
+    if (e) e.preventDefault();
     setStatus("loading");
     setStreamText("");
     const steps = ["Profil analiz ediliyor...","Kalori hesaplanıyor...","DiyetPro veritabanı taranıyor...","Plan oluşturuluyor..."];
@@ -97,14 +94,11 @@ export default function AIPlanUretici() {
       const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          messages: [{ role: "user", content: `Sen DiyetPro uzman diyetisyenisin... (bilgiler: ${JSON.stringify(form)})` }]
-        })
+        body: JSON.stringify({ ...form, allergies, restrictions })
       });
       clearInterval(interval);
       const data = await response.json();
-      setStreamText(data.output || "Plan üretilemedi.");
+      setStreamText(data.output || "Üzgünüz, bir plan üretilemedi.");
       setStatus("done");
     } catch(err) {
       clearInterval(interval);
@@ -121,13 +115,11 @@ export default function AIPlanUretici() {
           <div className="logo"><div className="logo-mark">DP</div><span className="logo-text">DiyetPro AI</span></div>
           <div className="nav">
             <div className="nav-section">Uygulama</div>
-            {[{id:"planlar",icon:"◈",label:"AI Plan Üret",active:true}].map(n=>(
-              <div key={n.id} className={`nav-item ${n.active?"active":""}`}><span className="icon">{n.icon}</span>{n.label}</div>
-            ))}
+            <div className="nav-item active"><span className="icon">◈</span>AI Plan Üret</div>
           </div>
           <div className="sidebar-user">
             <div className="avatar">DP</div>
-            <div className="user-info"><div className="name">DiyetPro Kullanıcısı</div><div className="role">Premium Üye</div></div>
+            <div className="user-info"><div className="name">Misafir Kullanıcı</div><div className="role">Premium Üye</div></div>
           </div>
         </div>
 
@@ -135,7 +127,7 @@ export default function AIPlanUretici() {
           <div className="content-area">
             <div className="topbar">
               <h1>✦ DiyetPro AI Plan Üretici</h1>
-              <p>Profesyonel yapay zeka ile saniyeler içinde kişiselleştirilmiş diyet planınızı alın</p>
+              <p>Yapay zeka ile saniyeler içinde kişiselleştirilmiş diyet planınızı alın</p>
             </div>
             <div className="grid">
               <div className="card">
@@ -145,7 +137,17 @@ export default function AIPlanUretici() {
                     <div className="field"><label>Ad Soyad</label><input value={form.ad} onChange={e=>setForm({...form,ad:e.target.value})} /></div>
                     <div className="field"><label>Yaş</label><input type="number" value={form.yas} onChange={e=>setForm({...form,yas:e.target.value})} /></div>
                   </div>
-                  {/* ... Diğer input alanları buraya gelecek ... */}
+                  <div className="row3">
+                    <div className="field"><label>Cinsiyet</label><select value={form.cinsiyet} onChange={e=>setForm({...form,cinsiyet:e.target.value})}><option>Kadın</option><option>Erkek</option></select></div>
+                    <div className="field"><label>Kilo (kg)</label><input type="number" value={form.kilo} onChange={e=>setForm({...form,kilo:e.target.value})} /></div>
+                    <div className="field"><label>Boy (cm)</label><input type="number" value={form.boy} onChange={e=>setForm({...form,boy:e.target.value})} /></div>
+                  </div>
+                  <div className="field"><label>Alerjiler</label>
+                    <div className="toggle-group">{ALLERGIES.map(a=><button key={a} type="button" className={`toggle-btn ${allergies.includes(a)?"on":""}`} onClick={()=>toggle(allergies,setAllergies,a)}>{a}</button>)}</div>
+                  </div>
+                  <div className="field"><label>Kısıtlamalar</label>
+                    <div className="toggle-group">{RESTRICTIONS.map(r=><button key={r} type="button" className={`toggle-btn ${restrictions.includes(r)?"on":""}`} onClick={()=>toggle(restrictions,setRestrictions,r)}>{r}</button>)}</div>
+                  </div>
                   <button type="button" className="btn-generate" onClick={handleGenerate} disabled={status==="loading"}>
                     {status==="loading"?"⏳ Üretiliyor...":"✦ Planı Üret"}
                   </button>
@@ -162,7 +164,6 @@ export default function AIPlanUretici() {
             </div>
           </div>
 
-          {/* IYZICO İÇİN ŞART OLAN YASAL FOOTER */}
           <footer className="footer">
             <p>© 2026 DiyetPro.net - Tüm Hakları Saklıdır.</p>
             <div className="footer-links">
