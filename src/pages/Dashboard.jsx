@@ -1,6 +1,5 @@
 /* eslint-disable */
 import { useState, useEffect } from "react";
-import { supabase, getMusteriler, musteri_ekle, planKaydet } from "../lib/supabase";
 import { supabase, getMusteriler, musteri_ekle, planKaydet, signOut } from "../lib/supabase";
 
 const styles = `
