@@ -245,7 +245,14 @@ export default function Dashboard() {
                 <div className="empty-state">Henüz müşteri yok. "+ Yeni Müşteri" ile başla!</div>
               ) : (
                 <table>
-                  <thead><tr><th>Müşteri</th><th>Hedef</th><th>Kilo</th><th>Durum</th></tr></thead>
+                  <thead>
+                    <tr>
+                      <th>Müşteri</th>
+                      <th>Hedef</th>
+                      <th>Kilo</th>
+                      <th>Durum</th>
+                    </tr>
+                  </thead>
                   <tbody>
                     {musteriler.map(c=>(
                       <tr key={c.id} onClick={()=>setSelectedClient(c)}>
