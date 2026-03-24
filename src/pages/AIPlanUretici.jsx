@@ -1,6 +1,7 @@
 /* eslint-disable */
 'use client';
 import { useState } from "react";
+import jsPDF from 'jspdf';
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -187,7 +188,14 @@ export default function AIPlanUretici() {
   };
 
   const handleCopy = () => { navigator.clipboard.writeText(planText); };
-
+const handlePDF = () => {
+  const doc = new jsPDF();
+  const lines = doc.splitTextToSize(planText, 180);
+  doc.setFont("helvetica");
+  doc.setFontSize(11);
+  doc.text(lines, 15, 20);
+  doc.save(`${form.ad || 'diyet'}-plan.pdf`);
+};
   return (
     <>
       <style>{styles}</style>
@@ -357,9 +365,10 @@ export default function AIPlanUretici() {
                       <span className="ap-pill amber">{form.sure} gün</span>
                     </div>
                     <div className="ap-actions">
-                      <button className="ap-action-btn outline" onClick={handleCopy}>Kopyala</button>
-                      <button className="ap-action-btn solid" onClick={handleGenerate}>Yenile</button>
-                    </div>
+  <button className="ap-action-btn outline" onClick={handleCopy}>Kopyala</button>
+  <button className="ap-action-btn outline" onClick={handlePDF}>PDF İndir</button>
+  <button className="ap-action-btn solid" onClick={handleGenerate}>Yenile</button>
+</div>
                   </div>
                   <div className="ap-plan-body">
                     <div className="ap-plan-text">{planText}</div>
