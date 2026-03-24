@@ -366,31 +366,31 @@ export default function Dashboard() {
                 <div style={{fontSize:13,color:"#8a8378"}}>{selectedClient.email}</div>
               </div>
             </div>
-                        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:"1.5rem"}}>
-              {[
-                {label:"Hedef",val:selectedClient.hedef||"-"},
-                {label:"Kilo",val:selectedClient.kilo?`${selectedClient.kilo} kg`:"-"},
-                {label:"Boy",val:selectedClient.boy?`${selectedClient.boy} cm`:"-"},
-                {label:"Yaş",val:selectedClient.yas||"-"},
-              ].map((row,i)=>(
-                <div key={i} style={{background:"#f5f2ec",borderRadius:10,padding:"12px 14px"}}>
-                  <div style={{fontSize:11,color:"#8a8378",marginBottom:3}}>{row.label}</div>
-                  <div style={{fontSize:15,fontWeight:500,color:"#1c3829"}}>{row.val}</div>
-                </div>
-              ))}
-            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:"1.5rem"}}>
+  {[
+    {label:"Hedef",val:selectedClient.hedef||"-"},
+    {label:"Kilo",val:selectedClient.kilo?`${selectedClient.kilo} kg`:"-"},
+    {label:"Boy",val:selectedClient.boy?`${selectedClient.boy} cm`:"-"},
+    {label:"Yaş",val:selectedClient.yas||"-"},
+  ].map((row,i)=>(
+    <div key={i} style={{background:"#f5f2ec",borderRadius:10,padding:"12px 14px"}}>
+      <div style={{fontSize:11,color:"#8a8378",marginBottom:3}}>{row.label}</div>
+      <div style={{fontSize:15,fontWeight:500,color:"#1c3829"}}>{row.val}</div>
+    </div>
+  ))}
+</div>
 
-            <div className="modal-actions">
-              <button className="btn-outline" onClick={() => setSelectedClient(null)}>
-                Kapat
-              </button>
-              <button
-                className="btn-primary"
-                onClick={() => {
-                  setAiForm({ ...aiForm, musteriId: selectedClient.id });
-                  setSelectedClient(null);
-                }}
-              >
-                ✦ Plan Üret
-              </button>
-            </div>
+<div className="modal-actions">
+  <button className="btn-outline" onClick={() => setSelectedClient(null)}>
+    Kapat
+  </button>
+  <button
+    className="btn-primary"
+    onClick={() => {
+      setAiForm({ ...aiForm, musteriId: selectedClient.id });
+      setSelectedClient(null);
+    }}
+  >
+    ✦ Plan Üret
+  </button>
+</div>
