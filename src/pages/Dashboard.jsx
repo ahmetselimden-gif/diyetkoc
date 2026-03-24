@@ -123,7 +123,14 @@ export default function Dashboard() {
     if (!yeniForm.ad || !yeniForm.soyad) { setHata("Ad ve soyad zorunlu!"); return; }
     setHata("");
     const kocId = user?.id || "00000000-0000-0000-0000-000000000000";
-    const { error } = await musteri_ekle({ ...yeniForm, koc_id: kocId, aktif: true });
+    const { error } = await musteri_ekle({ 
+  ...yeniForm, 
+  koc_id: kocId, 
+  aktif: true,
+  yas: yeniForm.yas ? parseInt(yeniForm.yas) : null,
+  kilo: yeniForm.kilo ? parseFloat(yeniForm.kilo) : null,
+  boy: yeniForm.boy ? parseFloat(yeniForm.boy) : null,
+});
     if (error) { setHata("Hata: " + error.message); return; }
     setBasari("Müşteri eklendi!");
     setTimeout(() => { setBasari(""); setShowYeniMusteri(false); setYeniForm({ ad:"", soyad:"", email:"", telefon:"", yas:"", cinsiyet:"Kadın", kilo:"", boy:"", hedef:"Kilo verme" }); }, 1500);
