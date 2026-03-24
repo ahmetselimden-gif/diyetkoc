@@ -1,4 +1,6 @@
-import { useState } from "react";
+/* eslint-disable */
+import { useState, useEffect } from "react";
+import { supabase, getMusteriler, musteri_ekle, planKaydet } from "../lib/supabase";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500&display=swap');
@@ -32,15 +34,13 @@ const styles = `
   .metric-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
   .metric-label { font-size: 12px; color: #8a8378; font-weight: 500; }
   .metric-val { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 400; color: #1c3829; }
-  .metric-change { font-size: 12px; margin-top: 4px; }
+  .metric-change { font-size: 12px; margin-top: 4px; color: #8a8378; }
   .metric-change.up { color: #3B6D11; }
-  .metric-change.neutral { color: #8a8378; }
   .content-grid { display: grid; grid-template-columns: 1fr 340px; gap: 16px; }
   .card { background: #fff; border: 0.5px solid #e8e4dc; border-radius: 16px; overflow: hidden; }
   .card-header { padding: 1.25rem 1.5rem; border-bottom: 0.5px solid #e8e4dc; display: flex; align-items: center; justify-content: space-between; }
   .card-title { font-size: 15px; font-weight: 500; color: #1c3829; }
   .card-sub { font-size: 12px; color: #8a8378; margin-top: 2px; }
-  .search-bar { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: #f5f2ec; border-radius: 9px; font-size: 13px; color: #8a8378; }
   table { width: 100%; border-collapse: collapse; }
   thead th { padding: 12px 1.5rem; text-align: left; font-size: 11px; font-weight: 500; color: #b5b0a7; letter-spacing: 0.06em; text-transform: uppercase; border-bottom: 0.5px solid #e8e4dc; }
   tbody tr { border-bottom: 0.5px solid #f0ece4; cursor: pointer; }
@@ -48,16 +48,13 @@ const styles = `
   tbody tr:last-child { border-bottom: none; }
   tbody td { padding: 13px 1.5rem; font-size: 14px; color: #3a3732; }
   .client-name { display: flex; align-items: center; gap: 10px; }
-  .client-avatar { width: 32px; height: 32px; border-radius: 50%; background: #e8e4dc; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: #5a5650; }
+  .client-avatar { width: 32px; height: 32px; border-radius: 50%; background: #e8e4dc; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: #5a5650; flex-shrink: 0; }
   .client-fullname { font-weight: 500; color: #1c3829; }
   .client-email { font-size: 12px; color: #8a8378; }
   .badge { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 500; }
   .badge.active { background: #EAF3DE; color: #3B6D11; }
   .badge.waiting { background: #FAEEDA; color: #854F0B; }
   .badge.new { background: #E6F1FB; color: #185FA5; }
-  .progress-wrap { display: flex; align-items: center; gap: 8px; }
-  .progress-bar { flex: 1; height: 6px; background: #e8e4dc; border-radius: 3px; overflow: hidden; max-width: 80px; }
-  .progress-fill { height: 100%; border-radius: 3px; background: #1c3829; }
   .right-col { display: flex; flex-direction: column; gap: 16px; }
   .ai-card { background: #1c3829; border-radius: 16px; padding: 1.5rem; }
   .ai-card-title { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 300; color: #f5f2ec; margin-bottom: 0.4rem; }
@@ -68,65 +65,107 @@ const styles = `
   .ai-field select option { background: #1c3829; }
   .ai-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .btn-ai { width: 100%; padding: 12px; margin-top: 4px; background: #a8d5a2; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; color: #1c3829; cursor: pointer; }
-  .activity-list { padding: 0 1rem 1rem; }
-  .activity-item { display: flex; gap: 12px; padding: 12px 0.5rem; border-bottom: 0.5px solid #f0ece4; }
-  .activity-item:last-child { border-bottom: none; }
-  .activity-dot { width: 8px; height: 8px; border-radius: 50%; background: #a8d5a2; margin-top: 5px; flex-shrink: 0; }
-  .activity-text { font-size: 13px; color: #3a3732; line-height: 1.5; }
-  .activity-time { font-size: 11px; color: #b5b0a7; margin-top: 2px; }
+  .btn-ai:disabled { opacity: 0.6; cursor: not-allowed; }
+  .empty-state { padding: 3rem; text-align: center; color: #8a8378; font-size: 14px; }
   .modal-overlay { position: fixed; inset: 0; background: rgba(28,56,41,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 1rem; }
   .modal { background: #f5f2ec; border-radius: 20px; padding: 2rem; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; }
   .modal-title { font-family: 'Fraunces', serif; font-size: 1.4rem; font-weight: 300; color: #1c3829; margin-bottom: 0.4rem; }
   .modal-sub { font-size: 13px; color: #8a8378; margin-bottom: 1.5rem; }
+  .form-field { margin-bottom: 12px; }
+  .form-field label { display: block; font-size: 11px; font-weight: 500; color: #5a5650; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 5px; }
+  .form-field input, .form-field select { width: 100%; padding: 10px 12px; border: 1.5px solid #e4dfd5; border-radius: 10px; background: #fff; font-family: 'DM Sans', sans-serif; font-size: 14px; color: #1c3829; outline: none; appearance: none; }
+  .form-field input:focus { border-color: #1c3829; }
+  .form-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .plan-output { background: #fff; border: 0.5px solid #e8e4dc; border-radius: 12px; padding: 1.25rem; font-size: 13px; color: #3a3732; line-height: 1.8; white-space: pre-wrap; margin-bottom: 1rem; max-height: 320px; overflow-y: auto; }
   .modal-actions { display: flex; gap: 10px; }
   .modal-actions .btn-outline { flex: 1; }
   .modal-actions .btn-primary { flex: 1; }
+  .loading-row { padding: 2rem; text-align: center; color: #8a8378; font-size: 13px; }
+  .error-box { background: #fff5f5; border: 1px solid #fecdcd; border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #c53030; margin-bottom: 12px; }
+  .success-box { background: #f0f9f0; border: 1px solid #a8d5a2; border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #3B6D11; margin-bottom: 12px; }
 `;
-
-const clients = [
-  { id:1, name:"Ayşe Kaya", email:"ayse@gmail.com", initials:"AK", goal:"Kilo verme", week:4, progress:65, status:"active", lastPlan:"3 gün önce" },
-  { id:2, name:"Mehmet Demir", email:"mdemir@gmail.com", initials:"MD", goal:"Kas yapma", week:2, progress:30, status:"new", lastPlan:"Bugün" },
-  { id:3, name:"Zeynep Arslan", email:"zeynep.a@gmail.com", initials:"ZA", goal:"Sağlıklı beslenme", week:8, progress:88, status:"active", lastPlan:"1 hafta önce" },
-  { id:4, name:"Ali Çelik", email:"alicelik@gmail.com", initials:"AÇ", goal:"Kilo verme", week:1, progress:10, status:"waiting", lastPlan:"Henüz yok" },
-  { id:5, name:"Fatma Yıldız", email:"fatma.y@gmail.com", initials:"FY", goal:"Form koruma", week:12, progress:95, status:"active", lastPlan:"2 gün önce" },
-];
-
-const activities = [
-  { text:"Mehmet Demir ölçüm girdi: 84.2 kg", time:"10 dakika önce" },
-  { text:"Ayşe Kaya diyet planını görüntüledi", time:"45 dakika önce" },
-  { text:"Fatma Yıldız haftalık raporu gönderildi", time:"2 saat önce" },
-  { text:"Yeni müşteri Ali Çelik kaydoldu", time:"Dün 14:32" },
-];
-
-const samplePlan = `📋 HAFTALIK DİYET PLANI — Ayşe Kaya
-Hedef: Kilo verme | Kalori: 1500 kcal/gün
-
-PAZARTESI
-🌅 Kahvaltı (350 kcal)
-- 2 yumurta, 1 dilim tam buğday ekmek
-- Beyaz peynir, domates, salatalık
-
-☀️ Öğle (400 kcal)
-- Mercimek çorbası, ızgara tavuk (120g)
-- Mevsim salatası
-
-🌙 Akşam (450 kcal)
-- Fırın sebze, bulgur pilavı, cacık
-
-💧 Su: Günde en az 2.5 litre`;
 
 export default function Dashboard() {
   const [activeNav, setActiveNav] = useState("musteriler");
-  const [generating, setGenerating] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+  const [musteriler, setMusteriler] = useState([]);
+  const [yukleniyor, setYukleniyor] = useState(true);
+  const [user, setUser] = useState(null);
+  const [showYeniMusteri, setShowYeniMusteri] = useState(false);
+  const [showPlanModal, setShowPlanModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
-  const [form, setForm] = useState({ musteri:"", hedef:"kilo-verme", kalori:"1500", sure:"4" });
+  const [planUretiyor, setPlanUretiyor] = useState(false);
+  const [uretilmisPlan, setUretilmisPlan] = useState("");
+  const [hata, setHata] = useState("");
+  const [basari, setBasari] = useState("");
+  const [aiForm, setAiForm] = useState({ musteriId:"", hedef:"kilo-verme", kalori:"1500", sure:"4" });
+  const [yeniForm, setYeniForm] = useState({ ad:"", soyad:"", email:"", telefon:"", yas:"", cinsiyet:"Kadın", kilo:"", boy:"", hedef:"Kilo verme" });
 
-  const handleGenerate = () => {
-    setGenerating(true);
-    setTimeout(() => { setGenerating(false); setShowModal(true); }, 1800);
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      if (user) {
+        const { data } = await getMusteriler(user.id);
+        setMusteriler(data || []);
+      }
+      setYukleniyor(false);
+    };
+    init();
+  }, []);
+
+  const musteriyiYenile = async () => {
+    if (!user) return;
+    const { data } = await getMusteriler(user.id);
+    setMusteriler(data || []);
   };
+
+  const handleYeniMusteri = async () => {
+    if (!yeniForm.ad || !yeniForm.soyad) { setHata("Ad ve soyad zorunlu!"); return; }
+    setHata("");
+    const { error } = await musteri_ekle({ ...yeniForm, koc_id: user.id, aktif: true });
+    if (error) { setHata("Hata: " + error.message); return; }
+    setBasari("Müşteri eklendi!");
+    setTimeout(() => { setBasari(""); setShowYeniMusteri(false); setYeniForm({ ad:"", soyad:"", email:"", telefon:"", yas:"", cinsiyet:"Kadın", kilo:"", boy:"", hedef:"Kilo verme" }); }, 1500);
+    musteriyiYenile();
+  };
+
+  const handlePlanUret = async () => {
+    const seciliMusteri = musteriler.find(m => m.id === aiForm.musteriId);
+    if (!seciliMusteri) { setHata("Müşteri seçiniz!"); return; }
+    setPlanUretiyor(true);
+    setHata("");
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ad: seciliMusteri.ad + " " + seciliMusteri.soyad,
+          yas: seciliMusteri.yas,
+          cinsiyet: seciliMusteri.cinsiyet,
+          kilo: seciliMusteri.kilo,
+          boy: seciliMusteri.boy,
+          hedef: aiForm.hedef,
+          aktivite: "orta",
+          kalori: aiForm.kalori,
+          sure: parseInt(aiForm.sure) * 7,
+          notlar: "",
+          allergies: [],
+          restrictions: []
+        })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setUretilmisPlan(data.output);
+      await planKaydet({ musteri_id: seciliMusteri.id, koc_id: user.id, icerik: data.output, kalori: parseInt(aiForm.kalori), sure: parseInt(aiForm.sure) });
+      setShowPlanModal(true);
+    } catch (err) {
+      setHata("Hata: " + err.message);
+    }
+    setPlanUretiyor(false);
+  };
+
+  const initials = (ad, soyad) => ((ad?.[0]||"") + (soyad?.[0]||"")).toUpperCase();
+  const aktifSayisi = musteriler.filter(m => m.aktif).length;
 
   return (
     <>
@@ -136,10 +175,10 @@ export default function Dashboard() {
           <div className="logo"><div className="logo-mark">D</div><span className="logo-text">DiyetKoç</span></div>
           <div className="nav">
             <div className="nav-section">Genel</div>
-            {[{id:"ozet",icon:"▦",label:"Özet"},{id:"musteriler",icon:"◎",label:"Müşteriler",badge:"5"},{id:"planlar",icon:"◈",label:"AI Planlar"}].map(n=>(
+            {[{id:"ozet",icon:"▦",label:"Özet"},{id:"musteriler",icon:"◎",label:"Müşteriler",badge:aktifSayisi},{id:"planlar",icon:"◈",label:"AI Planlar"}].map(n=>(
               <div key={n.id} className={`nav-item ${activeNav===n.id?"active":""}`} onClick={()=>setActiveNav(n.id)}>
                 <span className="icon">{n.icon}</span>{n.label}
-                {n.badge&&<span className="nav-badge">{n.badge}</span>}
+                {n.badge>0&&<span className="nav-badge">{n.badge}</span>}
               </div>
             ))}
             <div className="nav-section">Takip</div>
@@ -150,111 +189,179 @@ export default function Dashboard() {
             ))}
           </div>
           <div className="sidebar-user">
-            <div className="avatar">AY</div>
-            <div className="user-info"><div className="name">Ayşe Yılmaz</div><div className="role">Diyetisyen · Pro</div></div>
+            <div className="avatar">{user?.user_metadata?.ad?.[0] || "D"}</div>
+            <div className="user-info">
+              <div className="name">{user?.user_metadata?.ad || user?.email?.split("@")[0] || "Kullanıcı"}</div>
+              <div className="role">Diyetisyen · Pro</div>
+            </div>
           </div>
         </div>
 
         <div className="main">
           <div className="topbar">
-            <div className="topbar-left"><h1>Hoş geldin, Ayşe 👋</h1><p>Bugün 2 müşterinin planı güncellenmeli</p></div>
+            <div className="topbar-left">
+              <h1>Hoş geldin 👋</h1>
+              <p>{aktifSayisi} aktif müşteri</p>
+            </div>
             <div className="topbar-right">
-              <button className="btn-outline">📤 Rapor</button>
-              <button className="btn-primary">+ Yeni Müşteri</button>
+              <button className="btn-primary" onClick={()=>setShowYeniMusteri(true)}>+ Yeni Müşteri</button>
             </div>
           </div>
 
           <div className="metrics">
             {[
-              {label:"Aktif Müşteri",val:"5",icon:"◎",change:"↑ Bu ay 2 yeni",dir:"up"},
-              {label:"Bu Hafta Plan",val:"3",icon:"◈",change:"2 bekliyor",dir:"neutral"},
-              {label:"Ort. İlerleme",val:"%58",icon:"◉",change:"↑ +8% geçen aya göre",dir:"up"},
-              {label:"Aylık Gelir",val:"₺1.797",icon:"◫",change:"3 aktif abonelik",dir:"up"},
+              {label:"Aktif Müşteri", val:aktifSayisi, change:"Toplam kayıt"},
+              {label:"Toplam Müşteri", val:musteriler.length, change:"Tüm zamanlar"},
+              {label:"Bu Ay", val:musteriler.filter(m=>new Date(m.created_at)>new Date(Date.now()-30*24*60*60*1000)).length, change:"Yeni kayıt"},
+              {label:"Platform", val:"Pro", change:"Aktif plan"},
             ].map((m,i)=>(
               <div key={i} className="metric-card">
-                <div className="metric-top"><span className="metric-label">{m.label}</span><span>{m.icon}</span></div>
+                <div className="metric-top"><span className="metric-label">{m.label}</span></div>
                 <div className="metric-val">{m.val}</div>
-                <div className={`metric-change ${m.dir}`}>{m.change}</div>
+                <div className="metric-change">{m.change}</div>
               </div>
             ))}
           </div>
 
           <div className="content-grid">
-            <div>
-              <div className="card">
-                <div className="card-header">
-                  <div><div className="card-title">Müşteriler</div><div className="card-sub">5 aktif kayıt</div></div>
-                  <div className="search-bar">🔍 Ara...</div>
-                </div>
+            <div className="card">
+              <div className="card-header">
+                <div><div className="card-title">Müşteriler</div><div className="card-sub">{musteriler.length} kayıt</div></div>
+              </div>
+              {yukleniyor ? (
+                <div className="loading-row">Yükleniyor...</div>
+              ) : musteriler.length === 0 ? (
+                <div className="empty-state">Henüz müşteri yok. "+ Yeni Müşteri" ile başla!</div>
+              ) : (
                 <table>
-                  <thead><tr><th>Müşteri</th><th>Hedef</th><th>Hafta</th><th>İlerleme</th><th>Durum</th></tr></thead>
+                  <thead><tr><th>Müşteri</th><th>Hedef</th><th>Kilo</th><th>Durum</th></tr></thead>
                   <tbody>
-                    {clients.map(c=>(
+                    {musteriler.map(c=>(
                       <tr key={c.id} onClick={()=>setSelectedClient(c)}>
-                        <td><div className="client-name"><div className="client-avatar">{c.initials}</div><div><div className="client-fullname">{c.name}</div><div className="client-email">{c.email}</div></div></div></td>
-                        <td>{c.goal}</td>
-                        <td>{c.week}. hafta</td>
-                        <td><div className="progress-wrap"><div className="progress-bar"><div className="progress-fill" style={{width:`${c.progress}%`}}></div></div><span style={{fontSize:"12px",color:"#8a8378"}}>%{c.progress}</span></div></td>
-                        <td><span className={`badge ${c.status}`}>{c.status==="active"?"Aktif":c.status==="new"?"Yeni":"Bekliyor"}</span></td>
+                        <td>
+                          <div className="client-name">
+                            <div className="client-avatar">{initials(c.ad, c.soyad)}</div>
+                            <div>
+                              <div className="client-fullname">{c.ad} {c.soyad}</div>
+                              <div className="client-email">{c.email}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>{c.hedef || "-"}</td>
+                        <td>{c.kilo ? `${c.kilo} kg` : "-"}</td>
+                        <td><span className={`badge ${c.aktif?"active":"waiting"}`}>{c.aktif?"Aktif":"Pasif"}</span></td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              </div>
+              )}
             </div>
 
             <div className="right-col">
               <div className="ai-card">
                 <div className="ai-card-title">AI Plan Üret</div>
                 <div className="ai-card-sub">Saniyeler içinde kişiselleştirilmiş plan</div>
-                <div className="ai-field"><label>Müşteri</label><select value={form.musteri} onChange={e=>setForm({...form,musteri:e.target.value})}><option value="">Seç...</option>{clients.map(c=><option key={c.id} value={c.name}>{c.name}</option>)}</select></div>
-                <div className="ai-field"><label>Hedef</label><select value={form.hedef} onChange={e=>setForm({...form,hedef:e.target.value})}><option value="kilo-verme">Kilo verme</option><option value="kas-yapma">Kas yapma</option><option value="form-koruma">Form koruma</option></select></div>
+                {hata && <div className="error-box">{hata}</div>}
+                <div className="ai-field">
+                  <label>Müşteri</label>
+                  <select value={aiForm.musteriId} onChange={e=>setAiForm({...aiForm,musteriId:e.target.value})}>
+                    <option value="">Seç...</option>
+                    {musteriler.map(c=><option key={c.id} value={c.id}>{c.ad} {c.soyad}</option>)}
+                  </select>
+                </div>
+                <div className="ai-field">
+                  <label>Hedef</label>
+                  <select value={aiForm.hedef} onChange={e=>setAiForm({...aiForm,hedef:e.target.value})}>
+                    <option value="kilo-verme">Kilo verme</option>
+                    <option value="kas-yapma">Kas yapma</option>
+                    <option value="form-koruma">Form koruma</option>
+                  </select>
+                </div>
                 <div className="ai-row">
-                  <div className="ai-field"><label>Kalori</label><input placeholder="1500" value={form.kalori} onChange={e=>setForm({...form,kalori:e.target.value})} /></div>
-                  <div className="ai-field"><label>Süre (hafta)</label><input placeholder="4" value={form.sure} onChange={e=>setForm({...form,sure:e.target.value})} /></div>
+                  <div className="ai-field"><label>Kalori</label><input placeholder="1500" value={aiForm.kalori} onChange={e=>setAiForm({...aiForm,kalori:e.target.value})} /></div>
+                  <div className="ai-field"><label>Süre (hafta)</label><input placeholder="4" value={aiForm.sure} onChange={e=>setAiForm({...aiForm,sure:e.target.value})} /></div>
                 </div>
-                <button className="btn-ai" onClick={handleGenerate} disabled={generating}>{generating?"⏳ Üretiliyor...":"✦ Planı Üret"}</button>
-              </div>
-
-              <div className="card">
-                <div className="card-header"><div><div className="card-title">Son Aktiviteler</div><div className="card-sub">Gerçek zamanlı</div></div></div>
-                <div className="activity-list">
-                  {activities.map((a,i)=>(
-                    <div key={i} className="activity-item">
-                      <div className="activity-dot"></div>
-                      <div><div className="activity-text">{a.text}</div><div className="activity-time">{a.time}</div></div>
-                    </div>
-                  ))}
-                </div>
+                <button className="btn-ai" onClick={handlePlanUret} disabled={planUretiyor}>
+                  {planUretiyor ? "⏳ Üretiliyor..." : "✦ Planı Üret"}
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {showModal&&(
-        <div className="modal-overlay" onClick={()=>setShowModal(false)}>
+      {/* Yeni Müşteri Modal */}
+      {showYeniMusteri && (
+        <div className="modal-overlay" onClick={()=>setShowYeniMusteri(false)}>
           <div className="modal" onClick={e=>e.stopPropagation()}>
-            <div className="modal-title">Plan Hazır ✦</div>
-            <div className="modal-sub">{form.musteri||"Müşteri"} için oluşturuldu</div>
-            <div className="plan-output">{samplePlan}</div>
+            <div className="modal-title">Yeni Müşteri Ekle</div>
+            <div className="modal-sub">Müşteri bilgilerini girin</div>
+            {hata && <div className="error-box">{hata}</div>}
+            {basari && <div className="success-box">{basari}</div>}
+            <div className="form-row2">
+              <div className="form-field"><label>Ad</label><input placeholder="Ayşe" value={yeniForm.ad} onChange={e=>setYeniForm({...yeniForm,ad:e.target.value})} /></div>
+              <div className="form-field"><label>Soyad</label><input placeholder="Kaya" value={yeniForm.soyad} onChange={e=>setYeniForm({...yeniForm,soyad:e.target.value})} /></div>
+            </div>
+            <div className="form-field"><label>E-posta</label><input placeholder="ayse@gmail.com" value={yeniForm.email} onChange={e=>setYeniForm({...yeniForm,email:e.target.value})} /></div>
+            <div className="form-field"><label>Telefon</label><input placeholder="0555 123 45 67" value={yeniForm.telefon} onChange={e=>setYeniForm({...yeniForm,telefon:e.target.value})} /></div>
+            <div className="form-row2">
+              <div className="form-field"><label>Yaş</label><input type="number" placeholder="32" value={yeniForm.yas} onChange={e=>setYeniForm({...yeniForm,yas:e.target.value})} /></div>
+              <div className="form-field"><label>Cinsiyet</label>
+                <select value={yeniForm.cinsiyet} onChange={e=>setYeniForm({...yeniForm,cinsiyet:e.target.value})}>
+                  <option>Kadın</option><option>Erkek</option>
+                </select>
+              </div>
+            </div>
+            <div className="form-row2">
+              <div className="form-field"><label>Kilo (kg)</label><input type="number" placeholder="68" value={yeniForm.kilo} onChange={e=>setYeniForm({...yeniForm,kilo:e.target.value})} /></div>
+              <div className="form-field"><label>Boy (cm)</label><input type="number" placeholder="165" value={yeniForm.boy} onChange={e=>setYeniForm({...yeniForm,boy:e.target.value})} /></div>
+            </div>
+            <div className="form-field"><label>Hedef</label>
+              <select value={yeniForm.hedef} onChange={e=>setYeniForm({...yeniForm,hedef:e.target.value})}>
+                <option>Kilo verme</option><option>Kas yapma</option><option>Sağlıklı beslenme</option><option>Form koruma</option>
+              </select>
+            </div>
             <div className="modal-actions">
-              <button className="btn-outline" onClick={()=>setShowModal(false)}>Düzenle</button>
-              <button className="btn-primary" onClick={()=>setShowModal(false)}>📤 PDF İndir</button>
+              <button className="btn-outline" onClick={()=>setShowYeniMusteri(false)}>İptal</button>
+              <button className="btn-primary" onClick={handleYeniMusteri}>Müşteri Ekle</button>
             </div>
           </div>
         </div>
       )}
 
-      {selectedClient&&(
+      {/* Plan Modal */}
+      {showPlanModal && (
+        <div className="modal-overlay" onClick={()=>setShowPlanModal(false)}>
+          <div className="modal" onClick={e=>e.stopPropagation()}>
+            <div className="modal-title">Plan Hazır ✦</div>
+            <div className="modal-sub">Supabase'e kaydedildi</div>
+            <div className="plan-output">{uretilmisPlan}</div>
+            <div className="modal-actions">
+              <button className="btn-outline" onClick={()=>setShowPlanModal(false)}>Kapat</button>
+              <button className="btn-primary" onClick={()=>{navigator.clipboard.writeText(uretilmisPlan);setShowPlanModal(false);}}>Kopyala</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Müşteri Detay Modal */}
+      {selectedClient && (
         <div className="modal-overlay" onClick={()=>setSelectedClient(null)}>
           <div className="modal" onClick={e=>e.stopPropagation()}>
             <div style={{display:"flex",alignItems:"center",gap:"14px",marginBottom:"1.5rem"}}>
-              <div className="client-avatar" style={{width:52,height:52,fontSize:18}}>{selectedClient.initials}</div>
-              <div><div className="modal-title" style={{marginBottom:2}}>{selectedClient.name}</div><div style={{fontSize:13,color:"#8a8378"}}>{selectedClient.email}</div></div>
+              <div className="client-avatar" style={{width:52,height:52,fontSize:18}}>{initials(selectedClient.ad,selectedClient.soyad)}</div>
+              <div>
+                <div className="modal-title" style={{marginBottom:2}}>{selectedClient.ad} {selectedClient.soyad}</div>
+                <div style={{fontSize:13,color:"#8a8378"}}>{selectedClient.email}</div>
+              </div>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:"1.5rem"}}>
-              {[{label:"Hedef",val:selectedClient.goal},{label:"Hafta",val:`${selectedClient.week}. hafta`},{label:"İlerleme",val:`%${selectedClient.progress}`},{label:"Son Plan",val:selectedClient.lastPlan}].map((row,i)=>(
+              {[
+                {label:"Hedef",val:selectedClient.hedef||"-"},
+                {label:"Kilo",val:selectedClient.kilo?`${selectedClient.kilo} kg`:"-"},
+                {label:"Boy",val:selectedClient.boy?`${selectedClient.boy} cm`:"-"},
+                {label:"Yaş",val:selectedClient.yas||"-"},
+              ].map((row,i)=>(
                 <div key={i} style={{background:"#f5f2ec",borderRadius:10,padding:"12px 14px"}}>
                   <div style={{fontSize:11,color:"#8a8378",marginBottom:3}}>{row.label}</div>
                   <div style={{fontSize:15,fontWeight:500,color:"#1c3829"}}>{row.val}</div>
@@ -263,7 +370,7 @@ export default function Dashboard() {
             </div>
             <div className="modal-actions">
               <button className="btn-outline" onClick={()=>setSelectedClient(null)}>Kapat</button>
-              <button className="btn-primary" onClick={()=>{setSelectedClient(null);handleGenerate();}}>✦ Plan Üret</button>
+              <button className="btn-primary" onClick={()=>{setAiForm({...aiForm,musteriId:selectedClient.id});setSelectedClient(null);}}>✦ Plan Üret</button>
             </div>
           </div>
         </div>
