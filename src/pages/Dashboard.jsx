@@ -1,6 +1,7 @@
 /* eslint-disable */
 import { useState, useEffect } from "react";
 import { supabase, getMusteriler, musteri_ekle, planKaydet } from "../lib/supabase";
+import { supabase, getMusteriler, musteri_ekle, planKaydet, signOut } from "../lib/supabase";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500&display=swap');
@@ -197,13 +198,16 @@ export default function Dashboard() {
             ))}
           </div>
           <div className="sidebar-user">
-            <div className="avatar">{user?.user_metadata?.ad?.[0] || "D"}</div>
-            <div className="user-info">
-              <div className="name">{user?.user_metadata?.ad || user?.email?.split("@")[0] || "Kullanıcı"}</div>
-              <div className="role">Diyetisyen · Pro</div>
-            </div>
-          </div>
-        </div>
+  <div className="avatar">{user?.user_metadata?.ad?.[0] || "D"}</div>
+  <div className="user-info">
+    <div className="name">{user?.user_metadata?.ad || user?.email?.split("@")[0] || "Kullanıcı"}</div>
+    <div className="role">Diyetisyen · Pro</div>
+    <div style={{cursor:'pointer', fontSize:12, color:'rgba(245,242,236,0.4)', marginTop:4}}
+      onClick={async()=>{ await signOut(); window.location.href='/giris'; }}>
+      Çıkış Yap
+    </div>
+  </div>
+</div>
 
         <div className="main">
           <div className="topbar">
