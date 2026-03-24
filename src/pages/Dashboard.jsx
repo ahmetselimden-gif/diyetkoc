@@ -366,7 +366,7 @@ export default function Dashboard() {
                 <div style={{fontSize:13,color:"#8a8378"}}>{selectedClient.email}</div>
               </div>
             </div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:"1.5rem"}}>
+                        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:"1.5rem"}}>
               {[
                 {label:"Hedef",val:selectedClient.hedef||"-"},
                 {label:"Kilo",val:selectedClient.kilo?`${selectedClient.kilo} kg`:"-"},
@@ -379,13 +379,18 @@ export default function Dashboard() {
                 </div>
               ))}
             </div>
+
             <div className="modal-actions">
-              <button className="btn-outline" onClick={()=>setSelectedClient(null)}>Kapat</button>
-              <button className="btn-primary" onClick={()=>{setAiForm({...aiForm,musteriId:selectedClient.id});setSelectedClient(null);}}>✦ Plan Üret</button>
+              <button className="btn-outline" onClick={() => setSelectedClient(null)}>
+                Kapat
+              </button>
+              <button
+                className="btn-primary"
+                onClick={() => {
+                  setAiForm({ ...aiForm, musteriId: selectedClient.id });
+                  setSelectedClient(null);
+                }}
+              >
+                ✦ Plan Üret
+              </button>
             </div>
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
