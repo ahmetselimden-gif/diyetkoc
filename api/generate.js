@@ -9,29 +9,36 @@ module.exports = async function handler(req, res) {
 
   const { ad, yas, cinsiyet, kilo, boy, hedef, aktivite, kalori, sure, notlar, allergies, restrictions } = req.body;
 
-  const prompt = `Sen profesyonel bir diyetisyensin. Aşağıdaki hastaya özel diyet planı hazırla.
+  const prompt = `Sen profesyonel bir diyetisyensin. Asagidaki hastaya ozel Turkce diyet plani hazirla.
 
-HASTA: ${ad || 'Belirtilmedi'}, ${yas} yaş, ${cinsiyet}, ${kilo}kg, ${boy}cm
-HEDEF: ${hedef} | Aktivite: ${aktivite} | Kalori: ${kalori}kcal/gün | Süre: ${sure} gün
+HASTA: ${ad || 'Belirtilmedi'}, ${yas} yas, ${cinsiyet}, ${kilo}kg, ${boy}cm
+HEDEF: ${hedef} | Aktivite: ${aktivite} | Kalori: ${kalori}kcal/gun | Sure: ${sure} gun
 ALERJILER: ${allergies?.join(', ') || 'Yok'}
 KISITLAMALAR: ${restrictions?.join(', ') || 'Yok'}
 NOTLAR: ${notlar || 'Yok'}
 
-CIKTI FORMATI: Sadece asagidaki HTML yapisini kullan. Markdown kullanma. Emoji kullanma. # ## ** gibi isaretler kullanma. Sadece HTML tagleri kullan.
+CIKTI KURALLARI - KESINLIKLE UY:
+1. Sadece HTML tagleri kullan: h2, h3, h4, p, ul, li, small
+2. Kesinlikle emoji kullanma
+3. Kesinlikle markdown kullanma (# ## ** - vb. yasak)
+4. kcal bilgisini SADECE h4 basliginda goster, yemek satirlarinda kcal yazma
+5. Alternatif onerileri sadece small tagiyle ver
+6. Tum Turkce karakterleri dogru yaz
+
+CIKTI YAPISI AYNEN BOYLE OLMALI:
 
 <h2>Hasta Degerlendirmesi</h2>
-<p>BMI hesapla, hedef analizi yap, kisa oneriler sun. Duz metin.</p>
+<p>BMI: [hesapla]. [Kisa hedef analizi ve oneriler. 2-3 cumle.]</p>
 
 <h2>Gunluk Ogun Plani</h2>
 
 <h3>Pazartesi</h3>
-
 <h4>Kahvalti (300 kcal)</h4>
 <ul>
 <li>2 adet haslanmis yumurta</li>
 <li>1 dilim tam bugday ekmek</li>
 <li>Domates, salatalik</li>
-<li>Seksersiz cay</li>
+<small>Alternatif: Beyaz peynir eklenebilir</small>
 </ul>
 
 <h4>Ara Ogun (150 kcal)</h4>
@@ -49,39 +56,34 @@ CIKTI FORMATI: Sadece asagidaki HTML yapisini kullan. Markdown kullanma. Emoji k
 
 <h4>Ara Ogun (100 kcal)</h4>
 <ul>
-<li>1 kase yogurt</li>
+<li>200ml sade yogurt</li>
 </ul>
 
 <h4>Aksam Yemegi (500 kcal)</h4>
 <ul>
 <li>200g firin somon</li>
-<li>Haslanmis sebze</li>
+<li>Haslanmis brokoli</li>
+<li>1 dilim ekmek</li>
 </ul>
 
 <p class="total">Gunluk Toplam: ${kalori} kcal</p>
 
-(${sure} gune kadar devam et, her gun icin ayni format)
+(Sali, Carsamba, Persembe, Cuma, Cumartesi, Pazar icin ayni format - ${sure} gune kadar)
 
 <h2>Kacинилacak Yiyecekler</h2>
 <ul>
-<li>...</li>
+<li>Seker ve sekerli icecekler</li>
+<li>Hazir ve paketli gidalar</li>
 </ul>
 
 <h2>Tavsiyeler</h2>
 <ul>
-<li>...</li>
+<li>Ogun atlamayin</li>
+<li>Porsiyon kontrolune dikkat edin</li>
 </ul>
 
 <h2>Su ve Egzersiz</h2>
-<p>Gunluk su tuketimi ve hafif egzersiz onerisi.</p>
-
-ONEMLI KURALLAR:
-- Sadece HTML tagleri kullan: h2, h3, h4, p, ul, li, small
-- Kesinlikle emoji kullanma
-- Kesinlikle markdown kullanma
-- kcal bilgisini sadece h4 basliginda goster
-- Alternatif onerileri <small> tagiyle ver
-- Tum Turkce karakterleri dogru yaz (a, i, u, o, s, g, c ve uzantilari)`;
+<p>Gunluk en az 2-2.5 litre su icin. Haftada 3-4 gun 30 dakika yuruyus onerilir.</p>`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {

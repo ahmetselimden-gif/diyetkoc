@@ -180,73 +180,68 @@ export default function AIPlanUretici() {
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Diyet Plani - ${form.ad || 'Hasta'}</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: Arial, sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       font-size: 11px;
       color: #1a1a1a;
-      background: #fff;
-      padding: 32px 40px;
-      line-height: 1.5;
+      background: #ffffff;
+      padding: 36px 44px;
+      line-height: 1.55;
     }
-    .header {
-      border-bottom: 2px solid #1a1a1a;
-      padding-bottom: 12px;
-      margin-bottom: 16px;
+    .doc-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+      border-bottom: 2px solid #1a1a1a;
     }
-    .logo {
-      font-size: 18px;
+    .doc-logo {
+      font-size: 17px;
       font-weight: 700;
       color: #1a1a1a;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.4px;
     }
-    .logo span {
-      color: #555;
-      font-weight: 400;
-    }
-    .date {
-      font-size: 10px;
-      color: #888;
-    }
+    .doc-logo span { font-weight: 400; color: #666; }
+    .doc-date { font-size: 10px; color: #999; }
     .patient-box {
-      background: #f7f7f7;
+      background: #f6f6f6;
       border-radius: 6px;
       padding: 10px 14px;
-      margin-bottom: 20px;
+      margin-bottom: 22px;
     }
     .patient-name {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
       color: #1a1a1a;
-      margin-bottom: 3px;
+      margin-bottom: 4px;
     }
-    .patient-info {
-      font-size: 10px;
-      color: #666;
-    }
+    .patient-meta { font-size: 10px; color: #666; }
     h2 {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
-      color: #888;
+      color: #999;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-top: 20px;
+      letter-spacing: 0.07em;
+      margin-top: 22px;
       margin-bottom: 8px;
-      padding-bottom: 4px;
-      border-bottom: 1px solid #e5e5e5;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #e0e0e0;
     }
     h3 {
       font-size: 12px;
       font-weight: 700;
       color: #1a1a1a;
-      margin-top: 14px;
+      margin-top: 16px;
       margin-bottom: 6px;
+      padding-top: 6px;
+      border-top: 1px dashed #e8e8e8;
     }
+    h3:first-of-type { border-top: none; }
     h4 {
       font-size: 11px;
       font-weight: 600;
@@ -254,159 +249,85 @@ export default function AIPlanUretici() {
       margin-top: 10px;
       margin-bottom: 4px;
     }
-    p { font-size: 11px; color: #333; margin-bottom: 6px; }
-    ul { padding-left: 14px; margin-bottom: 4px; }
-    li { font-size: 11px; color: #444; margin-bottom: 2px; }
-    small { font-size: 10px; color: #999; display: block; margin-top: 2px; }
-    .total {
+    p {
+      font-size: 11px;
+      color: #444;
+      margin-bottom: 6px;
+    }
+    p.total {
       font-size: 11px;
       font-weight: 600;
       color: #555;
       margin-top: 8px;
       padding-top: 6px;
-      border-top: 1px solid #eee;
+      border-top: 1px solid #e8e8e8;
     }
-    .footer {
-      margin-top: 32px;
-      padding-top: 10px;
-      border-top: 1px solid #e5e5e5;
-      font-size: 9px;
+    ul {
+      padding-left: 16px;
+      margin-bottom: 4px;
+    }
+    li {
+      font-size: 11px;
+      color: #444;
+      margin-bottom: 2px;
+    }
+    small {
+      font-size: 10px;
       color: #aaa;
+      display: block;
+      margin-top: 2px;
+      margin-left: -16px;
+      padding-left: 16px;
+      font-style: italic;
+    }
+    .doc-footer {
+      margin-top: 36px;
+      padding-top: 10px;
+      border-top: 1px solid #e0e0e0;
       display: flex;
       justify-content: space-between;
+      font-size: 9px;
+      color: #bbb;
     }
     @media print {
       body { padding: 20px 28px; }
-      @page { margin: 1cm; }
+      @page { margin: 1.2cm; size: A4; }
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="logo">DiyetPro <span>— diyetpro.net</span></div>
-    <div class="date">${new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+  <div class="doc-header">
+    <div class="doc-logo">DiyetPro <span>— diyetpro.net</span></div>
+    <div class="doc-date">${new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
   </div>
+
   <div class="patient-box">
     <div class="patient-name">${form.ad || 'Hasta'}</div>
-    <div class="patient-info">${[form.yas ? form.yas + ' yas' : null, form.cinsiyet, form.kilo ? form.kilo + ' kg' : null, form.boy ? form.boy + ' cm' : null, GOAL_LABELS[form.hedef], form.kalori + ' kcal/gun'].filter(Boolean).join('  •  ')}</div>
+    <div class="patient-meta">${[
+      form.yas ? form.yas + ' yas' : null,
+      form.cinsiyet,
+      form.kilo ? form.kilo + ' kg' : null,
+      form.boy ? form.boy + ' cm' : null,
+      GOAL_LABELS[form.hedef],
+      form.kalori + ' kcal/gun'
+    ].filter(Boolean).join('  \u2022  ')}</div>
   </div>
+
   ${planText}
-  <div class="footer">
-    <span>DiyetPro — diyetpro.net</span>
+
+  <div class="doc-footer">
+    <span>DiyetPro &mdash; diyetpro.net</span>
     <span>Bu plan bilgilendirme amaclidir. Uygulamadan once diyetisyeninize danismaniz onerilir.</span>
   </div>
 </body>
 </html>`;
 
   const win = window.open('', '_blank');
+  if (!win) { alert('Lutfen pop-up engelleyiciyi kapatin.'); return; }
   win.document.write(html);
   win.document.close();
-  win.onload = () => {
-    win.focus();
-    win.print();
-  };
+  win.onload = () => { win.focus(); win.print(); };
 };
-
-    // Header
-    doc.setFillColor(0, 122, 255);
-    doc.rect(0, 0, W, 28, "F");
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.setTextColor(255, 255, 255);
-    doc.text("DiyetPro", M, 17);
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(200, 230, 255);
-    doc.text("diyetpro.net", W - M, 17, { align: "right" });
-    y = 38;
-
-    // Hasta kutusu
-    doc.setFillColor(242, 242, 247);
-    doc.roundedRect(M, y - 5, maxW, 20, 4, 4, "F");
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.setTextColor(28, 28, 30);
-    doc.text(form.ad || "Hasta", M + 6, y + 4);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.setTextColor(100, 100, 110);
-    const info = [form.yas?`${form.yas} yaş`:null, form.cinsiyet, form.kilo?`${form.kilo}kg`:null, form.boy?`${form.boy}cm`:null, GOAL_LABELS[form.hedef], `${form.kalori} kcal`].filter(Boolean).join("  ·  ");
-    doc.text(info, M + 6, y + 11);
-    doc.setFontSize(9);
-    doc.setTextColor(150);
-    doc.text(new Date().toLocaleDateString("tr-TR"), W - M - 4, y + 4, { align: "right" });
-    y += 28;
-
-    // İçerik
-    const clean = planText.replace(/\*\*(.*?)\*\*/g, "$1").replace(/#{1,3} ?/g, "").replace(/^---$/gm, "────────────────────────");
-    const lines = clean.split('\n');
-
-    for (const line of lines) {
-      const t = line.trim();
-      if (!t) { y += 3; continue; }
-      if (y > 275) { doc.addPage(); y = 20; }
-
-      if (DAYS.some(d => t === d)) {
-        y += 4;
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(9);
-        doc.setTextColor(0, 122, 255);
-        doc.text(t, M, y);
-        y += 6;
-      } else if (SECTIONS.some(s => t.startsWith(s))) {
-        y += 4;
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(9);
-        doc.setTextColor(120, 120, 130);
-        doc.text(t.toUpperCase(), M, y);
-        y += 6;
-      } else if (MEALS.some(m => t.startsWith(m))) {
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(10);
-        doc.setTextColor(28, 28, 30);
-        doc.text(t, M, y);
-        y += 5.5;
-      } else if (t.startsWith('- ')) {
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(9.5);
-        doc.setTextColor(60, 60, 67);
-        const wrapped = doc.splitTextToSize("• " + t.substring(2), maxW - 6);
-        wrapped.forEach(wl => {
-          if (y > 275) { doc.addPage(); y = 20; }
-          doc.text(wl, M + 4, y);
-          y += 5;
-        });
-      } else if (t.startsWith('────')) {
-        doc.setDrawColor(220, 220, 225);
-        doc.line(M, y, W - M, y);
-        y += 6;
-      } else {
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(9.5);
-        doc.setTextColor(60, 60, 67);
-        const wrapped = doc.splitTextToSize(t, maxW);
-        wrapped.forEach(wl => {
-          if (y > 275) { doc.addPage(); y = 20; }
-          doc.text(wl, M, y);
-          y += 5;
-        });
-      }
-    }
-
-    // Footer
-    const total = doc.internal.getNumberOfPages();
-    for (let p = 1; p <= total; p++) {
-      doc.setPage(p);
-      doc.setFillColor(242, 242, 247);
-      doc.rect(0, 287, W, 10, "F");
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
-      doc.setTextColor(150);
-      doc.text("DiyetPro — diyetpro.net", M, 293);
-      doc.text(`${p} / ${total}`, W - M, 293, { align: "right" });
-    }
-    doc.save(`${form.ad||"hasta"}-diyet-plani.pdf`);
-  };
 
   const wpLink = `https://wa.me/?text=${encodeURIComponent("DiyetPro tarafından hazırlanan diyet planınız hazır!\n\nPlanınızı görüntülemek için diyetisyeninizle iletişime geçin.\n\ndiyetpro.net")}`;
   const tgLink = `https://t.me/share/url?url=https://diyetpro.net&text=${encodeURIComponent(`${form.ad||"Hasta"} için diyet planı hazırlandı.`)}`;
