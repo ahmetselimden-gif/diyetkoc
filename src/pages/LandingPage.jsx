@@ -420,6 +420,13 @@ export default function App() {
         <div className="footer-inner">
           <div className="footer-top">
             <div className="footer-brand">
+              <div>
+  <div className="footer-col-title">Ahmet Selim</div>
+
+  <p className="footer-link">ahmetselimden@gmail.com</p>
+  <p className="footer-link">WhatsApp: 0506 102 14 01</p>
+  <p className="footer-link">@diyetpro</p>
+</div>
               <div className="logo">
                 <div className="logo-mark" style={{background:"#a8d5a2"}}>D</div>
                 <span className="logo-text">DiyetPro</span>
