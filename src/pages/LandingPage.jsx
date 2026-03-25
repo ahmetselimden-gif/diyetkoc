@@ -425,7 +425,7 @@ export default function App() {
 
   <p className="footer-link">ahmetselimden@gmail.com</p>
   <p className="footer-link">WhatsApp: 0506 102 14 01</p>
-  <p className="footer-link">@diyetpro</p>
+  <p className="footer-link">İnsta:@Selimdennn</p>
 </div>
               <div className="logo">
                 <div className="logo-mark" style={{background:"#a8d5a2"}}>D</div>
