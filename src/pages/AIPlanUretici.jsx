@@ -280,8 +280,8 @@ export default function AIPlanUretici() {
 
         <div className="ap-main">
           <div className="ap-header">
-            <h1>✦ AI Plan Üretici</h1>
-            <p>Hasta bilgilerini gir, yapay zeka saniyeler içinde kişiselleştirilmiş diyet planını oluştursun</p>
+            <h1>✦ Plan Üretici</h1>
+            <p>Hasta bilgilerini gir, Kişiye özel diyet planı oluştur</p>
           </div>
 
           <div className="ap-grid">
