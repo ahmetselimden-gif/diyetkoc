@@ -17,27 +17,63 @@ ALERJILER: ${allergies?.join(', ') || 'Yok'}
 KISITLAMALAR: ${restrictions?.join(', ') || 'Yok'}
 NOTLAR: ${notlar || 'Yok'}
 
-CIKTI KURALLARI - KESINLIKLE UY:
-1. Sadece HTML tagleri kullan: h2, h3, h4, p, ul, li, small
-2. Kesinlikle emoji kullanma
-3. Kesinlikle markdown kullanma (# ## ** - vb. yasak)
-4. kcal bilgisini SADECE h4 basliginda goster, yemek satirlarinda kcal yazma
-5. Alternatif onerileri sadece small tagiyle ver
-6. Tum Turkce karakterleri dogru yaz
+SADECE HTML uret.
 
-CIKTI YAPISI AYNEN BOYLE OLMALI:
+AMAC:
+Nutrium tarzinda, profesyonel, sade ve premium gorunumlu bir diyet plani olustur.
+
+GENEL KURALLAR:
+- Markdown kullanma (#, ##, -, |, ** kesinlikle yasak)
+- Emoji kullanma
+- Sadece HTML tagleri kullan: div, h2, h3, h4, p, ul, li, small, span
+- Turkce karakterleri duzgun yaz (c, g, i, o, s, u ve uzantilari)
+- Alt cizgi (_) kullanma
+- Tabloyu | ile olusturma
+- Duz metin uretme
+- Kod blogu kullanma
+- Eger HTML disinda bir sey uretirsen cevap gecersiz sayilir
+
+BESIN KURALLARI:
+- Gunluk hayatta kolay bulunabilen besinler kullan
+- Turkiye'de yaygin gidalar tercih et (yumurta, tavuk, yogurt, peynir, sebzeler, elma, muz, portakal, bulgur, pilav, makarna)
+- Sofistike ve pahali urunlerden kacin (chia, quinoa, badem sutu, ithal urunler yasak)
+- Kahvaltida alisilagelmus seyler yaz
+- Ogunler mantikli ve uygulanabilir olsun
+
+DENGE:
+- Protein + karbonhidrat + sebze dengesi olsun
+- Tek tip beslenme olusturma
+- Pratik yemekler yaz
+- Calisan insanin uygulayabilecegi plan olustur
+
+FORMAT (ZORUNLU) - AYNEN BU YAPIDA URET:
+
+<div class="header">
+<span class="logo">DiyetPro</span>
+<span class="date">${new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+</div>
+
+<div class="patient-box">
+<div class="patient-name">${ad || 'Hasta'}</div>
+<div class="patient-meta">${[yas ? yas + ' yas' : null, cinsiyet, kilo ? kilo + ' kg' : null, boy ? boy + ' cm' : null, hedef, kalori + ' kcal/gun'].filter(Boolean).join(' • ')}</div>
+</div>
 
 <h2>Hasta Degerlendirmesi</h2>
-<p>BMI: [hesapla]. [Kisa hedef analizi ve oneriler. 2-3 cumle.]</p>
+<p>BMI: [hesapla]. [Kisa hedef analizi. 2-3 cumle maksimum.]</p>
 
 <h2>Gunluk Ogun Plani</h2>
 
+<div class="days">
+
+<div class="day">
 <h3>Pazartesi</h3>
+
 <h4>Kahvalti (300 kcal)</h4>
 <ul>
 <li>2 adet haslanmis yumurta</li>
 <li>1 dilim tam bugday ekmek</li>
 <li>Domates, salatalik</li>
+<li>Seksersiz cay</li>
 <small>Alternatif: Beyaz peynir eklenebilir</small>
 </ul>
 
@@ -61,29 +97,48 @@ CIKTI YAPISI AYNEN BOYLE OLMALI:
 
 <h4>Aksam Yemegi (500 kcal)</h4>
 <ul>
-<li>200g firin somon</li>
-<li>Haslanmis brokoli</li>
+<li>200g firin tavuk</li>
+<li>Haslanmis sebze</li>
 <li>1 dilim ekmek</li>
 </ul>
 
-<p class="total">Gunluk Toplam: ${kalori} kcal</p>
+<p class="total">Toplam: ${kalori} kcal</p>
+</div>
 
-(Sali, Carsamba, Persembe, Cuma, Cumartesi, Pazar icin ayni format - ${sure} gune kadar)
+(Sali, Carsamba, Persembe, Cuma, Cumartesi, Pazar icin ayni formatta div class="day" blogu olustur - ${sure} gune kadar)
+
+</div>
 
 <h2>Kacинилacak Yiyecekler</h2>
+
+<h3>Kesinlikle Yasakli</h3>
 <ul>
-<li>Seker ve sekerli icecekler</li>
-<li>Hazir ve paketli gidalar</li>
+<li>Sekerli icecekler (kola, meyve suyu)</li>
+<li>Fast food ve hazir yemekler</li>
+<li>Cips, biskuvi, seker</li>
+</ul>
+
+<h3>Sinirli Tuketim</h3>
+<ul>
+<li>Beyaz ekmek (haftada 2-3 dilim)</li>
+<li>Pirinc (azaltilmis miktar)</li>
 </ul>
 
 <h2>Tavsiyeler</h2>
 <ul>
 <li>Ogun atlamayin</li>
 <li>Porsiyon kontrolune dikkat edin</li>
+<li>Her gun duzenli yuruyus yapin</li>
 </ul>
 
 <h2>Su ve Egzersiz</h2>
-<p>Gunluk en az 2-2.5 litre su icin. Haftada 3-4 gun 30 dakika yuruyus onerilir.</p>`;
+<p>Gunluk en az 2.5 litre su icin. Haftada 3-4 gun 30 dakika yuruyus onerilir.</p>
+
+<div class="footer">
+<p>DiyetPro — diyetpro.net — Bu plan bilgilendirme amaclidir. Uygulamadan once diyetisyeninize danismaniz onerilir.</p>
+</div>
+
+SON: Cikti HER ZAMAN bu formatta olsun. Tasarim sade, modern ve profesyonel olsun.`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
