@@ -193,7 +193,7 @@ export default function Dashboard() {
         <div className="sidebar">
           <div className="logo">
             <div className="logo-mark">D</div>
-            <span className="logo-text">DiyetKoç</span>
+            <span className="logo-text">DiyetPro</span>
           </div>
           <div className="nav">
             <div className="nav-section">Genel</div>

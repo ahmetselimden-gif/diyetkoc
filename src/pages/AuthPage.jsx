@@ -79,7 +79,7 @@ export default function AuthPage() {
         <div className="left">
           <div className="logo">
             <div className="logo-mark">D</div>
-            <span className="logo-text">DiyetKoç</span>
+            <span className="logo-text">DiyetPro</span>
           </div>
           <div className="hero-text">
             <div className="hero-tag">Türkiye'nin #1 Diyetisyen Platformu</div>

@@ -225,7 +225,7 @@ export default function App() {
         <div className="nav-inner">
           <div className="logo">
             <div className="logo-mark">D</div>
-            <span className="logo-text">DiyetKoç</span>
+            <span className="logo-text">DiyetPro</span>
           </div>
           <div className="nav-links">
             <a className="nav-link" href="#ozellikler">Özellikler</a>
@@ -349,7 +349,7 @@ export default function App() {
         <div className="section-inner">
           <div className="section-tag">Yorumlar</div>
           <h2 className="section-title">Koçlar ne diyor?</h2>
-          <p className="section-sub" style={{marginBottom:"2.5rem"}}>Türkiye'nin dört bir yanından 800+ diyetisyen DiyetKoç ile çalışıyor.</p>
+          <p className="section-sub" style={{marginBottom:"2.5rem"}}>Türkiye'nin dört bir yanından 800+ diyetisyen DiyetPro ile çalışıyor.</p>
           <div className="testi-grid">
             {testimonials.map((t,i)=>(
               <div key={i} className="testi-card">
@@ -409,7 +409,7 @@ export default function App() {
       <section className="cta-section">
         <div className="cta-box">
           <h2 className="cta-title">Bugün başla, bu hafta<br/>zaman kazan</h2>
-          <p className="cta-sub">847 diyetisyen DiyetKoç ile haftada ortalama 4 saat kazanıyor.<br/>Kredi kartı gerekmez, 14 gün ücretsiz.</p>
+          <p className="cta-sub">847 diyetisyen DiyetPro ile haftada ortalama 4 saat kazanıyor.<br/>Kredi kartı gerekmez, 14 gün ücretsiz.</p>
           <button className="btn-cta">Ücretsiz Hesap Oluştur →</button>
           <div className="cta-note">Kurulum yok · İstediğin zaman iptal</div>
         </div>
@@ -422,7 +422,7 @@ export default function App() {
             <div className="footer-brand">
               <div className="logo">
                 <div className="logo-mark" style={{background:"#a8d5a2"}}>D</div>
-                <span className="logo-text">DiyetKoç</span>
+                <span className="logo-text">DiyetPro</span>
               </div>
               <p>Türkiye'nin diyetisyen ve fitness koçları için AI destekli platform.</p>
             </div>
@@ -440,7 +440,7 @@ export default function App() {
             </div>
           </div>
           <div className="footer-bottom">
-            <span className="footer-copy">© 2025 DiyetKoç. Tüm hakları saklıdır.</span>
+            <span className="footer-copy">© 2025 DiyetPro. Tüm hakları saklıdır.</span>
             <span className="footer-copy">Türkiye'de üretildi 🇹🇷</span>
           </div>
         </div>

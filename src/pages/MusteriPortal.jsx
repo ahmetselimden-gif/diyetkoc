@@ -148,7 +148,7 @@ export default function MusteriPortal() {
         <div className="phone-wrap">
           <div className="topbar">
             <div className="topbar-row">
-              <div className="greeting">DiyetKoç <span>Portalı</span></div>
+              <div className="greeting">DiyetPro <span>Portalı</span></div>
             </div>
           </div>
           <div className="login-box">
