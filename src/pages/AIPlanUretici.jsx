@@ -176,11 +176,136 @@ export default function AIPlanUretici() {
   };
 
   const handlePDF = () => {
-    const doc = new jsPDF({ unit: "mm", format: "a4" });
-    const W = doc.internal.pageSize.getWidth();
-    const M = 20;
-    const maxW = W - M * 2;
-    let y = 0;
+  const html = `<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Diyet Plani - ${form.ad || 'Hasta'}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      color: #1a1a1a;
+      background: #fff;
+      padding: 32px 40px;
+      line-height: 1.5;
+    }
+    .header {
+      border-bottom: 2px solid #1a1a1a;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .logo {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1a1a;
+      letter-spacing: -0.5px;
+    }
+    .logo span {
+      color: #555;
+      font-weight: 400;
+    }
+    .date {
+      font-size: 10px;
+      color: #888;
+    }
+    .patient-box {
+      background: #f7f7f7;
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-bottom: 20px;
+    }
+    .patient-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 3px;
+    }
+    .patient-info {
+      font-size: 10px;
+      color: #666;
+    }
+    h2 {
+      font-size: 11px;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 20px;
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #e5e5e5;
+    }
+    h3 {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-top: 14px;
+      margin-bottom: 6px;
+    }
+    h4 {
+      font-size: 11px;
+      font-weight: 600;
+      color: #333;
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+    p { font-size: 11px; color: #333; margin-bottom: 6px; }
+    ul { padding-left: 14px; margin-bottom: 4px; }
+    li { font-size: 11px; color: #444; margin-bottom: 2px; }
+    small { font-size: 10px; color: #999; display: block; margin-top: 2px; }
+    .total {
+      font-size: 11px;
+      font-weight: 600;
+      color: #555;
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px solid #eee;
+    }
+    .footer {
+      margin-top: 32px;
+      padding-top: 10px;
+      border-top: 1px solid #e5e5e5;
+      font-size: 9px;
+      color: #aaa;
+      display: flex;
+      justify-content: space-between;
+    }
+    @media print {
+      body { padding: 20px 28px; }
+      @page { margin: 1cm; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">DiyetPro <span>— diyetpro.net</span></div>
+    <div class="date">${new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+  </div>
+  <div class="patient-box">
+    <div class="patient-name">${form.ad || 'Hasta'}</div>
+    <div class="patient-info">${[form.yas ? form.yas + ' yas' : null, form.cinsiyet, form.kilo ? form.kilo + ' kg' : null, form.boy ? form.boy + ' cm' : null, GOAL_LABELS[form.hedef], form.kalori + ' kcal/gun'].filter(Boolean).join('  •  ')}</div>
+  </div>
+  ${planText}
+  <div class="footer">
+    <span>DiyetPro — diyetpro.net</span>
+    <span>Bu plan bilgilendirme amaclidir. Uygulamadan once diyetisyeninize danismaniz onerilir.</span>
+  </div>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+  win.onload = () => {
+    win.focus();
+    win.print();
+  };
+};
 
     // Header
     doc.setFillColor(0, 122, 255);

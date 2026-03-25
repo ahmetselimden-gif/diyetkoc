@@ -9,33 +9,79 @@ module.exports = async function handler(req, res) {
 
   const { ad, yas, cinsiyet, kilo, boy, hedef, aktivite, kalori, sure, notlar, allergies, restrictions } = req.body;
 
-  const prompt = `Sen uzman bir diyetisyensin. Aşağıdaki hastaya özel, detaylı ve uygulanabilir bir Türkçe diyet planı hazırla.
+  const prompt = `Sen profesyonel bir diyetisyensin. Aşağıdaki hastaya özel diyet planı hazırla.
 
-HASTA PROFİLİ:
-- Ad Soyad: ${ad || 'Belirtilmedi'}
-- Yaş: ${yas} | Cinsiyet: ${cinsiyet} | Kilo: ${kilo}kg | Boy: ${boy}cm
-- Hedef: ${hedef} | Aktivite: ${aktivite}
-- Günlük Kalori: ${kalori} kcal | Süre: ${sure} gün
-- Alerjiler: ${allergies?.length ? allergies.join(', ') : 'Yok'}
-- Kısıtlamalar: ${restrictions?.length ? restrictions.join(', ') : 'Yok'}
-- Ek Notlar: ${notlar || 'Yok'}
+HASTA: ${ad || 'Belirtilmedi'}, ${yas} yaş, ${cinsiyet}, ${kilo}kg, ${boy}cm
+HEDEF: ${hedef} | Aktivite: ${aktivite} | Kalori: ${kalori}kcal/gün | Süre: ${sure} gün
+ALERJILER: ${allergies?.join(', ') || 'Yok'}
+KISITLAMALAR: ${restrictions?.join(', ') || 'Yok'}
+NOTLAR: ${notlar || 'Yok'}
 
-Lütfen şu başlıkları içeren plan hazırla:
+CIKTI FORMATI: Sadece asagidaki HTML yapisini kullan. Markdown kullanma. Emoji kullanma. # ## ** gibi isaretler kullanma. Sadece HTML tagleri kullan.
 
-## 📊 Hasta Değerlendirmesi
-BMI hesapla, hedef analizi yap, öneriler sun.
+<h2>Hasta Degerlendirmesi</h2>
+<p>BMI hesapla, hedef analizi yap, kisa oneriler sun. Duz metin.</p>
 
-## 🍽️ Günlük Öğün Planı
-Kahvaltı, Sabah Ara Öğün, Öğle, Öğleden Sonra Ara Öğün, Akşam yemeği için somut yiyecek önerileri ve kalori miktarlarını yaz.
+<h2>Gunluk Ogun Plani</h2>
 
-## ❌ Kaçınılacak Yiyecekler
-Hastanın durumuna özel kaçınılması gereken besinler.
+<h3>Pazartesi</h3>
 
-## 💡 Haftalık Tavsiyeler
-Pratik öneriler ve motivasyon.
+<h4>Kahvalti (300 kcal)</h4>
+<ul>
+<li>2 adet haslanmis yumurta</li>
+<li>1 dilim tam bugday ekmek</li>
+<li>Domates, salatalik</li>
+<li>Seksersiz cay</li>
+</ul>
 
-## 💧 Günlük Su & Egzersiz Önerisi
-Su tüketimi ve hafif egzersiz önerileri.`;
+<h4>Ara Ogun (150 kcal)</h4>
+<ul>
+<li>1 elma</li>
+<li>30g ceviz</li>
+</ul>
+
+<h4>Ogle Yemegi (450 kcal)</h4>
+<ul>
+<li>150g izgara tavuk</li>
+<li>1 porsiyon bulgur pilavi</li>
+<li>Yesil salata</li>
+</ul>
+
+<h4>Ara Ogun (100 kcal)</h4>
+<ul>
+<li>1 kase yogurt</li>
+</ul>
+
+<h4>Aksam Yemegi (500 kcal)</h4>
+<ul>
+<li>200g firin somon</li>
+<li>Haslanmis sebze</li>
+</ul>
+
+<p class="total">Gunluk Toplam: ${kalori} kcal</p>
+
+(${sure} gune kadar devam et, her gun icin ayni format)
+
+<h2>Kacинилacak Yiyecekler</h2>
+<ul>
+<li>...</li>
+</ul>
+
+<h2>Tavsiyeler</h2>
+<ul>
+<li>...</li>
+</ul>
+
+<h2>Su ve Egzersiz</h2>
+<p>Gunluk su tuketimi ve hafif egzersiz onerisi.</p>
+
+ONEMLI KURALLAR:
+- Sadece HTML tagleri kullan: h2, h3, h4, p, ul, li, small
+- Kesinlikle emoji kullanma
+- Kesinlikle markdown kullanma
+- kcal bilgisini sadece h4 basliginda goster
+- Alternatif onerileri <small> tagiyle ver
+- Tum Turkce karakterleri dogru yaz (a, i, u, o, s, g, c ve uzantilari)`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
