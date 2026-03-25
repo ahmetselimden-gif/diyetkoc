@@ -35,7 +35,6 @@ const styles = `
   .metric-label { font-size: 12px; color: #8a8378; font-weight: 500; }
   .metric-val { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 400; color: #1c3829; }
   .metric-change { font-size: 12px; margin-top: 4px; color: #8a8378; }
-  .metric-change.up { color: #3B6D11; }
   .content-grid { display: grid; grid-template-columns: 1fr 340px; gap: 16px; }
   .card { background: #fff; border: 0.5px solid #e8e4dc; border-radius: 16px; overflow: hidden; }
   .card-header { padding: 1.25rem 1.5rem; border-bottom: 0.5px solid #e8e4dc; display: flex; align-items: center; justify-content: space-between; }
@@ -54,7 +53,6 @@ const styles = `
   .badge { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 500; }
   .badge.active { background: #EAF3DE; color: #3B6D11; }
   .badge.waiting { background: #FAEEDA; color: #854F0B; }
-  .badge.new { background: #E6F1FB; color: #185FA5; }
   .right-col { display: flex; flex-direction: column; gap: 16px; }
   .ai-card { background: #1c3829; border-radius: 16px; padding: 1.5rem; }
   .ai-card-title { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 300; color: #f5f2ec; margin-bottom: 0.4rem; }
@@ -74,7 +72,6 @@ const styles = `
   .form-field { margin-bottom: 12px; }
   .form-field label { display: block; font-size: 11px; font-weight: 500; color: #5a5650; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 5px; }
   .form-field input, .form-field select { width: 100%; padding: 10px 12px; border: 1.5px solid #e4dfd5; border-radius: 10px; background: #fff; font-family: 'DM Sans', sans-serif; font-size: 14px; color: #1c3829; outline: none; appearance: none; }
-  .form-field input:focus { border-color: #1c3829; }
   .form-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .plan-output { background: #fff; border: 0.5px solid #e8e4dc; border-radius: 12px; padding: 1.25rem; font-size: 13px; color: #3a3732; line-height: 1.8; white-space: pre-wrap; margin-bottom: 1rem; max-height: 320px; overflow-y: auto; }
   .modal-actions { display: flex; gap: 10px; }
@@ -83,6 +80,8 @@ const styles = `
   .loading-row { padding: 2rem; text-align: center; color: #8a8378; font-size: 13px; }
   .error-box { background: #fff5f5; border: 1px solid #fecdcd; border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #c53030; margin-bottom: 12px; }
   .success-box { background: #f0f9f0; border: 1px solid #a8d5a2; border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #3B6D11; margin-bottom: 12px; }
+  .portal-link { font-size: 12px; color: #1c3829; text-decoration: none; padding: 4px 10px; border: 1px solid #e8e4dc; border-radius: 6px; }
+  .portal-link:hover { background: #f5f2ec; }
 `;
 
 export default function Dashboard() {
@@ -123,17 +122,21 @@ export default function Dashboard() {
     if (!yeniForm.ad || !yeniForm.soyad) { setHata("Ad ve soyad zorunlu!"); return; }
     setHata("");
     const kocId = user?.id || "00000000-0000-0000-0000-000000000000";
-    const { error } = await musteri_ekle({ 
-  ...yeniForm, 
-  koc_id: kocId, 
-  aktif: true,
-  yas: yeniForm.yas ? parseInt(yeniForm.yas) : null,
-  kilo: yeniForm.kilo ? parseFloat(yeniForm.kilo) : null,
-  boy: yeniForm.boy ? parseFloat(yeniForm.boy) : null,
-});
+    const { error } = await musteri_ekle({
+      ...yeniForm,
+      koc_id: kocId,
+      aktif: true,
+      yas: yeniForm.yas ? parseInt(yeniForm.yas) : null,
+      kilo: yeniForm.kilo ? parseFloat(yeniForm.kilo) : null,
+      boy: yeniForm.boy ? parseFloat(yeniForm.boy) : null,
+    });
     if (error) { setHata("Hata: " + error.message); return; }
     setBasari("Müşteri eklendi!");
-    setTimeout(() => { setBasari(""); setShowYeniMusteri(false); setYeniForm({ ad:"", soyad:"", email:"", telefon:"", yas:"", cinsiyet:"Kadın", kilo:"", boy:"", hedef:"Kilo verme" }); }, 1500);
+    setTimeout(() => {
+      setBasari("");
+      setShowYeniMusteri(false);
+      setYeniForm({ ad:"", soyad:"", email:"", telefon:"", yas:"", cinsiyet:"Kadın", kilo:"", boy:"", hedef:"Kilo verme" });
+    }, 1500);
     musteriyiYenile();
   };
 
@@ -164,7 +167,13 @@ export default function Dashboard() {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       setUretilmisPlan(data.output);
-      await planKaydet({ musteri_id: seciliMusteri.id, koc_id: user.id, icerik: data.output, kalori: parseInt(aiForm.kalori), sure: parseInt(aiForm.sure) });
+      await planKaydet({
+        musteri_id: seciliMusteri.id,
+        koc_id: user.id,
+        icerik: data.output,
+        kalori: parseInt(aiForm.kalori),
+        sure: parseInt(aiForm.sure)
+      });
       setShowPlanModal(true);
     } catch (err) {
       setHata("Hata: " + err.message);
@@ -179,8 +188,13 @@ export default function Dashboard() {
     <>
       <style>{styles}</style>
       <div className="layout">
+
+        {/* SIDEBAR */}
         <div className="sidebar">
-          <div className="logo"><div className="logo-mark">D</div><span className="logo-text">DiyetKoç</span></div>
+          <div className="logo">
+            <div className="logo-mark">D</div>
+            <span className="logo-text">DiyetKoç</span>
+          </div>
           <div className="nav">
             <div className="nav-section">Genel</div>
             {[{id:"ozet",icon:"▦",label:"Özet"},{id:"musteriler",icon:"◎",label:"Müşteriler",badge:aktifSayisi},{id:"planlar",icon:"◈",label:"AI Planlar"}].map(n=>(
@@ -197,17 +211,19 @@ export default function Dashboard() {
             ))}
           </div>
           <div className="sidebar-user">
-  <div className="avatar">{user?.user_metadata?.ad?.[0] || "D"}</div>
-  <div className="user-info">
-    <div className="name">{user?.user_metadata?.ad || user?.email?.split("@")[0] || "Kullanıcı"}</div>
-    <div className="role">Diyetisyen · Pro</div>
-    <div style={{cursor:'pointer', fontSize:12, color:'rgba(245,242,236,0.4)', marginTop:4}}
-      onClick={async()=>{ await signOut(); window.location.href='/giris'; }}>
-      Çıkış Yap
-    </div>
-  </div>
-</div>
+            <div className="avatar">{user?.user_metadata?.ad?.[0] || "D"}</div>
+            <div className="user-info">
+              <div className="name">{user?.user_metadata?.ad || user?.email?.split("@")[0] || "Kullanıcı"}</div>
+              <div className="role">Diyetisyen · Pro</div>
+              <div style={{cursor:'pointer',fontSize:12,color:'rgba(245,242,236,0.4)',marginTop:4}}
+                onClick={async()=>{ await signOut(); window.location.href='/giris'; }}>
+                Çıkış Yap
+              </div>
+            </div>
+          </div>
+        </div>
 
+        {/* MAIN */}
         <div className="main">
           <div className="topbar">
             <div className="topbar-left">
@@ -251,6 +267,7 @@ export default function Dashboard() {
                       <th>Hedef</th>
                       <th>Kilo</th>
                       <th>Durum</th>
+                      <th>Portal</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -268,6 +285,9 @@ export default function Dashboard() {
                         <td>{c.hedef || "-"}</td>
                         <td>{c.kilo ? `${c.kilo} kg` : "-"}</td>
                         <td><span className={`badge ${c.aktif?"active":"waiting"}`}>{c.aktif?"Aktif":"Pasif"}</span></td>
+                        <td onClick={e=>e.stopPropagation()}>
+                          <a className="portal-link" href={`/portal?email=${c.email}`} target="_blank" rel="noreferrer">Portal →</a>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -374,33 +394,25 @@ export default function Dashboard() {
               </div>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:"1.5rem"}}>
-  {[
-    {label:"Hedef",val:selectedClient.hedef||"-"},
-    {label:"Kilo",val:selectedClient.kilo?`${selectedClient.kilo} kg`:"-"},
-    {label:"Boy",val:selectedClient.boy?`${selectedClient.boy} cm`:"-"},
-    {label:"Yaş",val:selectedClient.yas||"-"},
-  ].map((row,i)=>(
-    <div key={i} style={{background:"#f5f2ec",borderRadius:10,padding:"12px 14px"}}>
-      <div style={{fontSize:11,color:"#8a8378",marginBottom:3}}>{row.label}</div>
-      <div style={{fontSize:15,fontWeight:500,color:"#1c3829"}}>{row.val}</div>
-    </div>
-  ))}
-</div>
-
-<div className="modal-actions">
-  <button className="btn-outline" onClick={() => setSelectedClient(null)}>
-    Kapat
-  </button>
-  <button
-    className="btn-primary"
-    onClick={() => {
-      setAiForm({ ...aiForm, musteriId: selectedClient.id });
-      setSelectedClient(null);
-    }}
-  >
-    ✦ Plan Üret
-  </button>
-</div>
-</div>
-</div>
-)}
+              {[
+                {label:"Hedef",val:selectedClient.hedef||"-"},
+                {label:"Kilo",val:selectedClient.kilo?`${selectedClient.kilo} kg`:"-"},
+                {label:"Boy",val:selectedClient.boy?`${selectedClient.boy} cm`:"-"},
+                {label:"Yaş",val:selectedClient.yas||"-"},
+              ].map((row,i)=>(
+                <div key={i} style={{background:"#f5f2ec",borderRadius:10,padding:"12px 14px"}}>
+                  <div style={{fontSize:11,color:"#8a8378",marginBottom:3}}>{row.label}</div>
+                  <div style={{fontSize:15,fontWeight:500,color:"#1c3829"}}>{row.val}</div>
+                </div>
+              ))}
+            </div>
+            <div className="modal-actions">
+              <button className="btn-outline" onClick={()=>setSelectedClient(null)}>Kapat</button>
+              <button className="btn-primary" onClick={()=>{setAiForm({...aiForm,musteriId:selectedClient.id});setSelectedClient(null);}}>✦ Plan Üret</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
