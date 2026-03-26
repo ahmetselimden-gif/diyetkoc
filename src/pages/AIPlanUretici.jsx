@@ -177,78 +177,64 @@ export default function AIPlanUretici() {
     } catch (err) { clearInterval(iv); setErrorMsg(err.message); setStatus("error"); }
   };
 
-  const handlePDF = () => {
-  const content = `
-  <div class="pdf">
-    <div class="header">
-      <div class="title">DİYET LİSTESİ</div>
-      <div class="sub">${form.ad || "Hasta"}</div>
-    </div>
+  const renderPlan = (text) => {
+  if (!text) return "";
 
-    ${renderPlan(planText)}
-  </div>
-  `;
+  const lines = text.split("\n");
 
-  const style = `
-  <style>
-    body {
-      font-family: Arial;
-      padding: 20px;
-      background: #fff;
+  let html = "";
+  let inList = false;
+
+  lines.forEach(line => {
+    const t = line.trim();
+
+    if (!t) return;
+
+    // GÜN
+    if (t === t.toUpperCase() && t.length < 20) {
+      html += `<div class="section-title">${t}</div>`;
+      return;
     }
 
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
+    // ÖĞÜN
+    if (
+      t.toLowerCase().includes("kahvaltı") ||
+      t.toLowerCase().includes("öğle") ||
+      t.toLowerCase().includes("akşam") ||
+      t.toLowerCase().includes("ara öğün")
+    ) {
+      html += `
+        <div class="section">
+          <div class="section-title">${t}</div>
+          <div class="card"><ul>
+      `;
+      inList = true;
+      return;
     }
 
-    .title {
-      font-size: 20px;
-      font-weight: bold;
-      color: #2e7d32;
+    // MADDE
+    if (t.startsWith("-") || t.startsWith("•")) {
+      html += `<li>${t.replace(/^[-•]\s*/, "")}</li>`;
+      return;
     }
 
-    .sub {
-      font-size: 12px;
-      color: #666;
+    // LİSTE KAPAT
+    if (inList) {
+      html += `</ul></div></div>`;
+      inList = false;
     }
 
-    .plan-day {
-      background: #c8e6c9;
-      padding: 6px 10px;
-      font-weight: bold;
-      margin-top: 12px;
-      border-radius: 4px;
-    }
+    html += `<p>${t}</p>`;
+  });
 
-    .plan-meal {
-      font-weight: bold;
-      margin-top: 10px;
-    }
+  if (inList) html += `</ul></div></div>`;
 
-    .plan-item {
-      margin-left: 10px;
-      font-size: 12px;
-    }
+  return html;
+};
 
-    .plan-section-title {
-      margin-top: 15px;
-      font-weight: bold;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 4px;
-    }
-  </style>
-  `;
+  if (inList) html += `</ul></div></div>`;
 
-  const win = window.open('', '_blank');
-  win.document.write(style + content);
-  win.document.close();
-
-  win.onload = () => {
-    win.print();
-  };
+  return html;
 };
 
   const wpLink = `https://wa.me/?text=${encodeURIComponent("DiyetPro tarafından hazırlanan diyet planınız hazır!\n\nPlanınızı görüntülemek için diyetisyeninizle iletişime geçin.\n\ndiyetpro.net")}`;
