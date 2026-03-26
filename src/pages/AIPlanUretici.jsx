@@ -1,5 +1,4 @@
 /* eslint-disable */
-import html2pdf from 'html2pdf.js';
 import { useState } from "react";
 import jsPDF from "jspdf";
 
@@ -176,24 +175,171 @@ export default function AIPlanUretici() {
     } catch (err) { clearInterval(iv); setErrorMsg(err.message); setStatus("error"); }
   };
 
-const handlePDF = () => {
-  const div = document.createElement('div');
-  div.innerHTML = planText;
-  div.style.position = 'absolute';
-  div.style.left = '-9999px';
-  document.body.appendChild(div);
+  const handlePDF = () => {
+  const html = `<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diyet Plani - ${form.ad || 'Hasta'}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 11px;
+      color: #1a1a1a;
+      background: #ffffff;
+      padding: 36px 44px;
+      line-height: 1.55;
+    }
+  
+.header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; margin-bottom: 16px; border-bottom: 2px solid #1a1a1a; }
+.logo { font-size: 17px; font-weight: 700; color: #1a1a1a; }
+.date { font-size: 10px; color: #999; }
+.patient-box { background: #f7f7f7; border-radius: 6px; padding: 10px 14px; margin-bottom: 20px; }
+.patient-name { font-size: 14px; font-weight: 700; color: #1a1a1a; margin-bottom: 3px; }
+.patient-meta { font-size: 10px; color: #666; }
+.days { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.day { border: 1px solid #eaeaea; border-radius: 6px; padding: 12px 14px; background: #fff; }
+.footer { margin-top: 24px; padding-top: 10px; border-top: 1px solid #e0e0e0; }
+.footer p { font-size: 9px; color: #bbb; }
+.total { font-size: 10px; font-weight: 600; color: #666; margin-top: 6px; padding-top: 5px; border-top: 1px solid #eee; } 
 
-  const opt = {
-    margin: 10,
-    filename: `${form.ad || 'hasta'}-diyet-plani.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  };
+    .doc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+      border-bottom: 2px solid #1a1a1a;
+    }
+    .doc-logo {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1a1a1a;
+      letter-spacing: -0.4px;
+    }
+    .doc-logo span { font-weight: 400; color: #666; }
+    .doc-date { font-size: 10px; color: #999; }
+    .patient-box {
+      background: #f6f6f6;
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-bottom: 22px;
+    }
+    .patient-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+    .patient-meta { font-size: 10px; color: #666; }
+    h2 {
+      font-size: 10px;
+      font-weight: 700;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-top: 22px;
+      margin-bottom: 8px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    h3 {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-top: 16px;
+      margin-bottom: 6px;
+      padding-top: 6px;
+      border-top: 1px dashed #e8e8e8;
+    }
+    h3:first-of-type { border-top: none; }
+    h4 {
+      font-size: 11px;
+      font-weight: 600;
+      color: #333;
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+    p {
+      font-size: 11px;
+      color: #444;
+      margin-bottom: 6px;
+    }
+    p.total {
+      font-size: 11px;
+      font-weight: 600;
+      color: #555;
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px solid #e8e8e8;
+    }
+    ul {
+      padding-left: 16px;
+      margin-bottom: 4px;
+    }
+    li {
+      font-size: 11px;
+      color: #444;
+      margin-bottom: 2px;
+    }
+    small {
+      font-size: 10px;
+      color: #aaa;
+      display: block;
+      margin-top: 2px;
+      margin-left: -16px;
+      padding-left: 16px;
+      font-style: italic;
+    }
+    .doc-footer {
+      margin-top: 36px;
+      padding-top: 10px;
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      color: #bbb;
+    }
+    @media print {
+      body { padding: 20px 28px; }
+      @page { margin: 1.2cm; size: A4; }
+    }
+  </style>
+</head>
+<body>
+  <div class="doc-header">
+    <div class="doc-logo">DiyetPro <span>— diyetpro.net</span></div>
+    <div class="doc-date">${new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+  </div>
 
-  html2pdf().set(opt).from(div).save().then(() => {
-    document.body.removeChild(div);
-  });
+  <div class="patient-box">
+    <div class="patient-name">${form.ad || 'Hasta'}</div>
+    <div class="patient-meta">${[
+      form.yas ? form.yas + ' yas' : null,
+      form.cinsiyet,
+      form.kilo ? form.kilo + ' kg' : null,
+      form.boy ? form.boy + ' cm' : null,
+      GOAL_LABELS[form.hedef],
+      form.kalori + ' kcal/gun'
+    ].filter(Boolean).join('  \u2022  ')}</div>
+  </div>
+
+  ${planText}
+
+  <div class="doc-footer">
+    <span>DiyetPro &mdash; diyetpro.net</span>
+    <span>Bu plan bilgilendirme amaclidir. Uygulamadan once diyetisyeninize danismaniz onerilir.</span>
+  </div>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  if (!win) { alert('Lutfen pop-up engelleyiciyi kapatin.'); return; }
+  win.document.write(html);
+  win.document.close();
+  win.onload = () => { win.focus(); win.print(); };
 };
 
   const wpLink = `https://wa.me/?text=${encodeURIComponent("DiyetPro tarafından hazırlanan diyet planınız hazır!\n\nPlanınızı görüntülemek için diyetisyeninizle iletişime geçin.\n\ndiyetpro.net")}`;
