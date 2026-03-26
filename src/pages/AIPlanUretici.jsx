@@ -176,22 +176,25 @@ export default function AIPlanUretici() {
   };
 
   const handlePDF = () => {
-  const html = `<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Diyet Plani - ${form.ad || 'Hasta'}</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 11px;
-      color: #1a1a1a;
-      background: #ffffff;
-      padding: 36px 44px;
-      line-height: 1.55;
-    }
+  const win = window.open('', '_blank');
+  if (!win) { alert('Lutfen pop-up engelleyiciyi kapatin.'); return; }
+  win.document.write(planText);
+  win.document.close();
+  win.onload = () => { win.focus(); win.print(); };
+};
+      
+.header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; margin-bottom: 16px; border-bottom: 2px solid #1a1a1a; }
+.logo { font-size: 17px; font-weight: 700; color: #1a1a1a; }
+.date { font-size: 10px; color: #999; }
+.patient-box { background: #f7f7f7; border-radius: 6px; padding: 10px 14px; margin-bottom: 20px; }
+.patient-name { font-size: 14px; font-weight: 700; color: #1a1a1a; margin-bottom: 3px; }
+.patient-meta { font-size: 10px; color: #666; }
+.days { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.day { border: 1px solid #eaeaea; border-radius: 6px; padding: 12px 14px; background: #fff; }
+.footer { margin-top: 24px; padding-top: 10px; border-top: 1px solid #e0e0e0; }
+.footer p { font-size: 9px; color: #bbb; }
+.total { font-size: 10px; font-weight: 600; color: #666; margin-top: 6px; padding-top: 5px; border-top: 1px solid #eee; } 
+
     .doc-header {
       display: flex;
       justify-content: space-between;
