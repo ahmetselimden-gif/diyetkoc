@@ -53,7 +53,7 @@ Ara Ogun (100 kcal)
 
 Aksam Yemegi (500 kcal)
 - 200g firin tavuk but
-- Haslanmis brokoli yada karnabahar
+- Haslanmis brokoli
 - 1 dilim ekmek
 
 Gunluk Toplam: ${kalori} kcal

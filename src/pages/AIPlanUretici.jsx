@@ -227,7 +227,7 @@ export default function AIPlanUretici() {
   };
 
   const handlePDF = () => {
-    const pdfHTML = buildPDFHTML(currentPlan, form);
+    const pdfHTML = buildPDFHTML(planText, form);
     const container = document.createElement('div');
     container.innerHTML = pdfHTML;
     container.style.cssText = 'position:absolute;left:-9999px;top:0;width:210mm;background:#fff;';
