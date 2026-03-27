@@ -9,72 +9,72 @@ module.exports = async function handler(req, res) {
 
   const { ad, yas, cinsiyet, kilo, boy, hedef, aktivite, kalori, sure, notlar, allergies, restrictions } = req.body;
 
-  const prompt = `
-Sen profesyonel bir diyetisyensin. Asagidaki hastaya ozel Turkce diyet plani hazirla.
+  const prompt = `Sen profesyonel bir diyetisyensin. Asagidaki hastaya ozel Turkce diyet plani hazirla.
 
-HASTA:
-${ad || 'Belirtilmedi'}, ${yas} yas, ${cinsiyet}, ${kilo} kg, ${boy} cm
-HEDEF: ${hedef}
-Aktivite: ${aktivite}
-Kalori: ${kalori} kcal/gun
-Sure: ${sure} gun
-
+HASTA: ${ad || 'Belirtilmedi'}, ${yas} yas, ${cinsiyet}, ${kilo}kg, ${boy}cm
+HEDEF: ${hedef} | Aktivite: ${aktivite} | Kalori: ${kalori}kcal/gun | Sure: ${sure} gun
 ALERJILER: ${allergies?.join(', ') || 'Yok'}
 KISITLAMALAR: ${restrictions?.join(', ') || 'Yok'}
 NOTLAR: ${notlar || 'Yok'}
 
+KESIN KURALLAR - UYMAYAN CEVAP GECERSIZDIR:
+- Sadece duz metin yaz
+- HTML, markdown, emoji, #, **, -, | kullanma
+- Kod blogu kullanma
+- Turkce karakterleri dogru yaz
 
-COK ONEMLI KURALLAR:
+FORMAT (AYNEN BU SEKILDE YAZ):
 
-- Sadece ogun listesi yaz
-- Asla uzun aciklama yazma
-- Paragraf yazma
-- "Hasta degerlendirmesi" gibi bolumler ekleme
-- Gereksiz bilgi verme
+HASTA DEGERLENDIRMESI
+BMI hesapla. 2-3 cumle hedef analizi.
 
-FORMAT:
+GUNLUK OGUN PLANI
 
-Her gun icin su sekilde yaz:
+PAZARTESİ
 
-PAZARTESI
+Kahvalti (300 kcal)
+- 2 adet haslanmis yumurta
+- 1 dilim tam bugday ekmek
+- Domates, salatalik
+- Sade cay
+Alternatif: Beyaz peynir eklenebilir
 
-Kahvalti
-- 2 yumurta
+Ara Ogun (150 kcal)
+- 1 elma
+- 10 adet badem
+
+Ogle Yemegi (450 kcal)
+- 150g izgara tavuk
+- 1 porsiyon bulgur pilavi
+- Mevsim salatasi
+
+Ara Ogun (100 kcal)
+- 1 kase sade yogurt
+
+Aksam Yemegi (500 kcal)
+- 200g firin tavuk but
+- Haslanmis brokoli yada karnabahar
 - 1 dilim ekmek
-- domates salatalik
 
-Ara Ogun
-- 1 meyve
+Gunluk Toplam: ${kalori} kcal
 
-Ogle
-- 150g tavuk
-- pilav
-- salata
+(SALI, CARSAMBA, PERSEMBE, CUMA, CUMARTESI, PAZAR icin ayni format - toplamda ${sure} gun)
 
-Ara Ogun
-- yogurt
+KACINILACAK YIYECEKLER
+- Sekerli icecekler
+- Fast food ve hazir yemekler
 
-Aksam
-- sebze yemegi
-- yogurt
+TAVSIYELER
+- Ogun atlamayin
+- Bol su icin
 
+SU VE EGZERSIZ
+Gunluk 2.5 litre su icin. Haftada 3 gun 30 dk yuruyus onerilir.
 
-EK KURALLAR:
-
-- Her ogun maksimum 4 madde olsun
-- Maddeler tek satir olsun
-- Alternatif varsa sadece 1 tane yaz
-- Gunluk toplam kalori en sona yaz
-
-EN ONEMLI:
-
-- Kisa yaz
-- Sade yaz
-- Profesyonel gorunsun
-- Turkiye'de kolay bulunabilen besinler kullan (yumurta, tavuk, pilav, yogurt vs)
-- Asla gereksiz detay verme
-
-`;
+YEMEK KURALLARI:
+- Turkiye'de kolay bulunur yiyecekler sec
+- Pratik ve uygulanabilir ogunler olustur
+- Dengelive mantikli beslenme sagla`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
