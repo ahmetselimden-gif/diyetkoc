@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { useState } from "react";
 import html2pdf from 'html2pdf.js';
-
+import html2pdf from "html2pdf.js";
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -227,20 +227,23 @@ export default function AIPlanUretici() {
   };
 
   const handlePDF = () => {
-    const pdfHTML = buildPDFHTML(currentPlan, form);
-    const container = document.createElement('div');
-    container.innerHTML = pdfHTML;
-    container.style.cssText = 'position:absolute;left:-9999px;top:0;width:210mm;background:#fff;';
-    document.body.appendChild(container);
-    const opt = {
-      margin:[8,8,8,8],
-      filename:(form.ad||'hasta')+'-diyet-plani.pdf',
-      image:{type:'jpeg',quality:0.98},
-      html2canvas:{scale:2,useCORS:true,logging:false},
-      jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
-    };
-    html2pdf().set(opt).from(container).save().then(()=>{document.body.removeChild(container);});
+  const element = document.getElementById("pdf-content");
+
+  if (!element) {
+    alert("PDF içeriği bulunamadı");
+    return;
+  }
+
+  const opt = {
+    margin: 10,
+    filename: `${form.ad || "hasta"}-diyet-plani.pdf`,
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
   };
+
+  html2pdf().set(opt).from(element).save();
+};
 
   const wpLink = "https://wa.me/?text="+encodeURIComponent("DiyetPro tarafindan hazirlanan diyet planiniz hazir!\n\ndiyetpro.net");
   const tgLink = "https://t.me/share/url?url=https://diyetpro.net&text="+encodeURIComponent((form.ad||"Hasta")+" icin diyet plani hazirlandi.");
