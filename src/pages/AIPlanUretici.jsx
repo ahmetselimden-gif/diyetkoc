@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { useState } from "react";
-import html2pdf from 'html2pdf.js';
+import { useNavigate } from "react-router-dom";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
@@ -184,7 +184,7 @@ function buildPDFHTML(planText, form) {
     '.pdf-hr { height: 1px; background: #e0e0e0; margin: 10px 0; }' +
     '.doc-footer { margin-top: 20px; padding-top: 8px; border-top: 1px solid #ddd; display: flex; justify-content: space-between; font-size: 9px; color: #bbb; }' +
     '@media print { body { padding: 16px 20px; } @page { margin: 1cm; size: A4; } }' +
-    '</style></head><body>' +
+    '</style><script>window.onload=function(){window.print();}<\/script></head><body>' +
     '<div class="doc-header">' +
     '<div><div class="doc-label">Kisiye Ozel</div><div class="doc-title">DIYET LISTESI</div></div>' +
     '<div class="doc-right"><div class="doc-brand">DiyetPro</div><div class="doc-site">diyetpro.net</div><div class="doc-date">' + dateStr + '</div></div>' +
@@ -198,7 +198,8 @@ function buildPDFHTML(planText, form) {
     '</body></html>';
 }
 
-export default function AIPlanUretici() {
+export default function AIPlanUretici({ user = null }) {
+  const navigate = useNavigate();
   const [form, setForm] = useState({ad:"",yas:"",cinsiyet:"Kadın",kilo:"",boy:"",hedef:"kilo-verme",aktivite:"orta",kalori:"1500",sure:"7",notlar:""});
   const [allergies, setAllergies] = useState([]);
   const [restrictions, setRestrictions] = useState([]);
@@ -228,14 +229,10 @@ export default function AIPlanUretici() {
 
   const handlePDF = () => {
     const pdfHTML = buildPDFHTML(currentPlan, form);
-    const opt = {
-      margin:[8,8,8,8],
-      filename:(form.ad||'hasta')+'-diyet-plani.pdf',
-      image:{type:'jpeg',quality:0.98},
-      html2canvas:{scale:2,useCORS:true,logging:false,windowWidth:794},
-      jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
-    };
-    html2pdf().set(opt).from(pdfHTML,'string').save();
+    const blob = new Blob([pdfHTML], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
   };
 
   const wpLink = "https://wa.me/?text="+encodeURIComponent("DiyetPro tarafindan hazirlanan diyet planiniz hazir!\n\ndiyetpro.net");
@@ -245,6 +242,12 @@ export default function AIPlanUretici() {
   return (
     <>
       <style>{styles}</style>
+      {!user && (
+        <div style={{background:'#1c3829',color:'#a8d5a2',padding:'10px 20px',display:'flex',alignItems:'center',justifyContent:'center',gap:16,fontSize:13,fontFamily:'inherit'}}>
+          <span>Bu bir demo — tüm özelliklere erişmek için ücretsiz hesap oluştur.</span>
+          <button onClick={()=>navigate('/giris')} style={{background:'#a8d5a2',color:'#1c3829',border:'none',borderRadius:100,padding:'5px 16px',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>Ücretsiz Başla →</button>
+        </div>
+      )}
       <div className="layout">
         <div className="sidebar">
           <div className="sidebar-logo">
@@ -254,7 +257,7 @@ export default function AIPlanUretici() {
           <div className="sidebar-section">Uygulama</div>
           <div className="sidebar-item active">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{width:16,height:16}}><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-            AI Plan Üret
+            Plan Üret
           </div>
           <div className="sidebar-bottom">
             <div className="sidebar-av">DP</div>
@@ -264,7 +267,7 @@ export default function AIPlanUretici() {
 
         <div className="main">
           <div className="page-header">
-            <div className="page-title">AI Plan Üretici</div>
+            <div className="page-title">Plan Üretici</div>
             <div className="page-sub">Hasta bilgilerini gir, saniyeler içinde kişisel plan hazır</div>
           </div>
           <div className="content-grid">

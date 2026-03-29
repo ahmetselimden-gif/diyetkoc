@@ -1,4 +1,5 @@
-import { useState, useEffect, } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=DM+Sans:wght@300;400;500&display=swap');
@@ -183,6 +184,7 @@ const testimonials = [
 ];
 
 export default function App() {
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [annual, setAnnual] = useState(false);
   const [count, setCount] = useState({ koç: 0, plan: 0, saat: 0 });
@@ -231,7 +233,8 @@ export default function App() {
             <a className="nav-link" href="#ozellikler">Özellikler</a>
             <a className="nav-link" href="#nasil">Nasıl çalışır?</a>
             <a className="nav-link" href="#fiyat">Fiyatlar</a>
-            <button className="nav-cta">Ücretsiz Başla</button>
+            <button className="nav-link" style={{background:"none",border:"none",cursor:"pointer",fontFamily:"inherit"}} onClick={()=>navigate('/demo')}>Plan Üret — Dene</button>
+            <button className="nav-cta" onClick={()=>navigate('/giris')}>Ücretsiz Başla</button>
           </div>
         </div>
       </nav>
@@ -248,8 +251,8 @@ export default function App() {
               Diyetisyenler ve fitness koçları için AI destekli plan üretimi, müşteri takibi ve otomatik ödeme sistemi. Haftada 4 saatini geri al.
             </p>
             <div className="hero-actions">
-              <button className="btn-hero">14 Gün Ücretsiz Dene →</button>
-              <button className="btn-ghost">Demo İzle</button>
+              <button className="btn-hero" onClick={()=>navigate('/giris')}>14 Gün Ücretsiz Dene →</button>
+              <button className="btn-ghost" onClick={()=>navigate('/demo')}>Plan Üret — Dene</button>
             </div>
             <div className="hero-trust">
               <div className="trust-avatars">

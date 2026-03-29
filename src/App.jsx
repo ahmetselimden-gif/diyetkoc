@@ -78,7 +78,7 @@ export default function App() {
           }
         />
 
-        {/* 4. AI PLAN ÜRETİCİ — giriş gerekli */}
+        {/* 4. PLAN ÜRETİCİ — giriş gerekli */}
         <Route
           path="/plan-uret"
           element={
@@ -87,6 +87,9 @@ export default function App() {
             </KorunmaSayfa>
           }
         />
+
+        {/* 4b. DEMO — giriş gerektirmez */}
+        <Route path="/demo" element={<AIPlanUretici />} />
 
         {/* 5. MÜŞTERİ PORTALI — giriş gerektirmez, link ile açılır */}
         <Route path="/portal/:portalLink" element={<PortalSayfa />} />
