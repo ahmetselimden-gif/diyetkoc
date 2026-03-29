@@ -227,10 +227,10 @@ export default function AIPlanUretici() {
 
   const handlePDF = () => {
     const pdfHTML = buildPDFHTML(currentPlan, form);
-    const win = window.open('', '_blank');
-    win.document.open();
-    win.document.write(pdfHTML);
-    win.document.close();
+    const blob = new Blob([pdfHTML], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
   };
 
   const wpLink = "https://wa.me/?text="+encodeURIComponent("DiyetPro tarafindan hazirlanan diyet planiniz hazir!\n\ndiyetpro.net");
@@ -249,7 +249,7 @@ export default function AIPlanUretici() {
           <div className="sidebar-section">Uygulama</div>
           <div className="sidebar-item active">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{width:16,height:16}}><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-            AI Plan Üret
+            Plan Üret
           </div>
           <div className="sidebar-bottom">
             <div className="sidebar-av">DP</div>
@@ -259,7 +259,7 @@ export default function AIPlanUretici() {
 
         <div className="main">
           <div className="page-header">
-            <div className="page-title">AI Plan Üretici</div>
+            <div className="page-title">Plan Üretici</div>
             <div className="page-sub">Hasta bilgilerini gir, saniyeler içinde kişisel plan hazır</div>
           </div>
           <div className="content-grid">
