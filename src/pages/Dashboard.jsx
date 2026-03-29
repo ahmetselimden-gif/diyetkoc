@@ -198,12 +198,12 @@ const initials = (ad, soyad) => ((ad?.[0] || "") + (soyad?.[0] || "")).toUpperCa
 const hedefRenk = { "Kilo verme": "green", "Kas yapma": "blue", "Sağlıklı beslenme": "orange", "Form koruma": "purple" };
 
 // ─── Component ──────────────────────────────────────────
-export default function Dashboard() {
+export default function Dashboard({ user: propUser }) {
   const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState("ozet");
   const [musteriler, setMusteriler] = useState([]);
   const [yukleniyor, setYukleniyor] = useState(true);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(propUser || null);
   const [showYeniMusteri, setShowYeniMusteri] = useState(false);
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
@@ -217,22 +217,27 @@ export default function Dashboard() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-      if (user) {
-        const { data } = await getMusteriler(user.id);
+      // propUser varsa onu kullan, yoksa Supabase'den al
+      let currentUser = propUser;
+      if (!currentUser) {
+        const { data: { user: sbUser } } = await supabase.auth.getUser();
+        currentUser = sbUser;
+      }
+      setUser(currentUser);
+      if (currentUser) {
+        const { data } = await getMusteriler(currentUser.id);
         setMusteriler(data || []);
         // Plan sayısını hesapla
         const { data: plans } = await supabase
           .from('planlar')
           .select('id', { count: 'exact' })
-          .eq('koc_id', user.id);
+          .eq('koc_id', currentUser.id);
         setPlanSayisi(plans?.length || 0);
       }
       setYukleniyor(false);
     };
     init();
-  }, []);
+  }, [propUser]);
 
   const musteriyiYenile = async () => {
     if (!user) return;
