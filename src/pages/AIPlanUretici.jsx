@@ -1,5 +1,6 @@
 /* eslint-disable */
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
@@ -197,7 +198,8 @@ function buildPDFHTML(planText, form) {
     '</body></html>';
 }
 
-export default function AIPlanUretici() {
+export default function AIPlanUretici({ user = null }) {
+  const navigate = useNavigate();
   const [form, setForm] = useState({ad:"",yas:"",cinsiyet:"Kadın",kilo:"",boy:"",hedef:"kilo-verme",aktivite:"orta",kalori:"1500",sure:"7",notlar:""});
   const [allergies, setAllergies] = useState([]);
   const [restrictions, setRestrictions] = useState([]);
@@ -240,6 +242,12 @@ export default function AIPlanUretici() {
   return (
     <>
       <style>{styles}</style>
+      {!user && (
+        <div style={{background:'#1c3829',color:'#a8d5a2',padding:'10px 20px',display:'flex',alignItems:'center',justifyContent:'center',gap:16,fontSize:13,fontFamily:'inherit'}}>
+          <span>Bu bir demo — tüm özelliklere erişmek için ücretsiz hesap oluştur.</span>
+          <button onClick={()=>navigate('/giris')} style={{background:'#a8d5a2',color:'#1c3829',border:'none',borderRadius:100,padding:'5px 16px',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>Ücretsiz Başla →</button>
+        </div>
+      )}
       <div className="layout">
         <div className="sidebar">
           <div className="sidebar-logo">
