@@ -1,6 +1,5 @@
 /* eslint-disable */
 import { useState } from "react";
-import html2pdf from 'html2pdf.js';
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
@@ -184,7 +183,7 @@ function buildPDFHTML(planText, form) {
     '.pdf-hr { height: 1px; background: #e0e0e0; margin: 10px 0; }' +
     '.doc-footer { margin-top: 20px; padding-top: 8px; border-top: 1px solid #ddd; display: flex; justify-content: space-between; font-size: 9px; color: #bbb; }' +
     '@media print { body { padding: 16px 20px; } @page { margin: 1cm; size: A4; } }' +
-    '</style></head><body>' +
+    '</style><script>window.onload=function(){window.print();}<\/script></head><body>' +
     '<div class="doc-header">' +
     '<div><div class="doc-label">Kisiye Ozel</div><div class="doc-title">DIYET LISTESI</div></div>' +
     '<div class="doc-right"><div class="doc-brand">DiyetPro</div><div class="doc-site">diyetpro.net</div><div class="doc-date">' + dateStr + '</div></div>' +
@@ -228,14 +227,10 @@ export default function AIPlanUretici() {
 
   const handlePDF = () => {
     const pdfHTML = buildPDFHTML(currentPlan, form);
-    const opt = {
-      margin:[8,8,8,8],
-      filename:(form.ad||'hasta')+'-diyet-plani.pdf',
-      image:{type:'jpeg',quality:0.98},
-      html2canvas:{scale:2,useCORS:true,logging:false,windowWidth:794},
-      jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
-    };
-    html2pdf().set(opt).from(pdfHTML,'string').save();
+    const win = window.open('', '_blank');
+    win.document.open();
+    win.document.write(pdfHTML);
+    win.document.close();
   };
 
   const wpLink = "https://wa.me/?text="+encodeURIComponent("DiyetPro tarafindan hazirlanan diyet planiniz hazir!\n\ndiyetpro.net");
