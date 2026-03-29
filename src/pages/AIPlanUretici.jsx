@@ -227,19 +227,15 @@ export default function AIPlanUretici() {
   };
 
   const handlePDF = () => {
-    const pdfHTML = buildPDFHTML(planText, form);
-    const container = document.createElement('div');
-    container.innerHTML = pdfHTML;
-    container.style.cssText = 'position:absolute;left:-9999px;top:0;width:210mm;background:#fff;';
-    document.body.appendChild(container);
+    const pdfHTML = buildPDFHTML(currentPlan, form);
     const opt = {
       margin:[8,8,8,8],
       filename:(form.ad||'hasta')+'-diyet-plani.pdf',
       image:{type:'jpeg',quality:0.98},
-      html2canvas:{scale:2,useCORS:true,logging:false},
+      html2canvas:{scale:2,useCORS:true,logging:false,windowWidth:794},
       jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
     };
-    html2pdf().set(opt).from(container).save().then(()=>{document.body.removeChild(container);});
+    html2pdf().set(opt).from(pdfHTML,'string').save();
   };
 
   const wpLink = "https://wa.me/?text="+encodeURIComponent("DiyetPro tarafindan hazirlanan diyet planiniz hazir!\n\ndiyetpro.net");
