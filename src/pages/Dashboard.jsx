@@ -1,5 +1,6 @@
 /* eslint-disable */
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase, getMusteriler, musteri_ekle, planKaydet, signOut } from "../lib/supabase";
 
 const styles = `
@@ -23,10 +24,11 @@ const styles = `
   .user-info .name { font-size: 13px; font-weight: 500; color: #f5f2ec; }
   .user-info .role { font-size: 11px; color: rgba(245,242,236,0.4); }
   .main { margin-left: 220px; padding: 2rem; }
-  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
-  .topbar-left h1 { font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 300; color: #1c3829; letter-spacing: -0.02em; }
-  .topbar-left p { font-size: 13px; color: #8a8378; margin-top: 2px; }
-  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .topbar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 2rem; gap: 16px; flex-wrap: wrap; }
+  .topbar-left { min-width: 0; }
+  .topbar-left h1 { font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 300; color: #1c3829; letter-spacing: -0.02em; white-space: nowrap; }
+  .topbar-left p { font-size: 13px; color: #8a8378; margin-top: 4px; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; padding-top: 4px; }
   .btn-outline { padding: 9px 18px; border: 1.5px solid #ddd9d0; border-radius: 10px; background: #fff; font-family: 'DM Sans', sans-serif; font-size: 13px; color: #1c3829; cursor: pointer; }
   .btn-primary { padding: 9px 18px; border: none; border-radius: 10px; background: #1c3829; font-family: 'DM Sans', sans-serif; font-size: 13px; color: #f5f2ec; cursor: pointer; font-weight: 500; }
   .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 2rem; }
@@ -85,6 +87,7 @@ const styles = `
 `;
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState("musteriler");
   const [musteriler, setMusteriler] = useState([]);
   const [yukleniyor, setYukleniyor] = useState(true);
@@ -197,8 +200,9 @@ export default function Dashboard() {
           </div>
           <div className="nav">
             <div className="nav-section">Genel</div>
-            {[{id:"ozet",icon:"▦",label:"Özet"},{id:"musteriler",icon:"◎",label:"Müşteriler",badge:aktifSayisi},{id:"planlar",icon:"◈",label:"AI Planlar"}].map(n=>(
-              <div key={n.id} className={`nav-item ${activeNav===n.id?"active":""}`} onClick={()=>setActiveNav(n.id)}>
+            {[{id:"ozet",icon:"▦",label:"Özet"},{id:"musteriler",icon:"◎",label:"Müşteriler",badge:aktifSayisi},{id:"planlar",icon:"◈",label:"Plan Üretici"}].map(n=>(
+              <div key={n.id} className={`nav-item ${activeNav===n.id?"active":""}`}
+                onClick={()=>{ if(n.id==="planlar") navigate("/plan-uret"); else setActiveNav(n.id); }}>
                 <span className="icon">{n.icon}</span>{n.label}
                 {n.badge>0&&<span className="nav-badge">{n.badge}</span>}
               </div>
@@ -231,7 +235,12 @@ export default function Dashboard() {
               <p>{aktifSayisi} aktif müşteri</p>
             </div>
             <div className="topbar-right">
-              <button className="btn-primary" onClick={()=>setShowYeniMusteri(true)}>+ Yeni Müşteri</button>
+              {activeNav === "musteriler" && (
+                <button className="btn-primary" onClick={()=>setShowYeniMusteri(true)}>+ Yeni Müşteri</button>
+              )}
+              {activeNav === "ozet" && (
+                <button className="btn-primary" onClick={()=>navigate("/plan-uret")}>✦ Plan Üret</button>
+              )}
             </div>
           </div>
 
@@ -250,81 +259,86 @@ export default function Dashboard() {
             ))}
           </div>
 
-          <div className="content-grid">
-            <div className="card">
-              <div className="card-header">
-                <div><div className="card-title">Müşteriler</div><div className="card-sub">{musteriler.length} kayıt</div></div>
+          {/* ÖZET */}
+          {activeNav === "ozet" && (
+            <div className="content-grid">
+              <div className="card">
+                <div className="card-header">
+                  <div><div className="card-title">Hızlı Bakış</div><div className="card-sub">Son müşteriler ve durum</div></div>
+                </div>
+                {yukleniyor ? <div className="loading-row">Yükleniyor...</div>
+                : musteriler.length === 0 ? <div className="empty-state">Henüz müşteri yok.</div>
+                : (
+                  <table>
+                    <thead><tr><th>Müşteri</th><th>Hedef</th><th>Durum</th></tr></thead>
+                    <tbody>
+                      {musteriler.slice(0,5).map(c=>(
+                        <tr key={c.id} onClick={()=>setSelectedClient(c)}>
+                          <td><div className="client-name"><div className="client-avatar">{initials(c.ad,c.soyad)}</div><div><div className="client-fullname">{c.ad} {c.soyad}</div></div></div></td>
+                          <td>{c.hedef||"-"}</td>
+                          <td><span className={`badge ${c.aktif?"active":"waiting"}`}>{c.aktif?"Aktif":"Pasif"}</span></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </div>
-              {yukleniyor ? (
-                <div className="loading-row">Yükleniyor...</div>
-              ) : musteriler.length === 0 ? (
-                <div className="empty-state">Henüz müşteri yok. "+ Yeni Müşteri" ile başla!</div>
-              ) : (
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Müşteri</th>
-                      <th>Hedef</th>
-                      <th>Kilo</th>
-                      <th>Durum</th>
-                      <th>Portal</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {musteriler.map(c=>(
-                      <tr key={c.id} onClick={()=>setSelectedClient(c)}>
-                        <td>
-                          <div className="client-name">
-                            <div className="client-avatar">{initials(c.ad, c.soyad)}</div>
-                            <div>
-                              <div className="client-fullname">{c.ad} {c.soyad}</div>
-                              <div className="client-email">{c.email}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td>{c.hedef || "-"}</td>
-                        <td>{c.kilo ? `${c.kilo} kg` : "-"}</td>
-                        <td><span className={`badge ${c.aktif?"active":"waiting"}`}>{c.aktif?"Aktif":"Pasif"}</span></td>
-                        <td onClick={e=>e.stopPropagation()}>
-                          <a className="portal-link" href={`/portal?email=${c.email}`} target="_blank" rel="noreferrer">Portal →</a>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+              <div className="right-col">
+                <div className="ai-card">
+                  <div className="ai-card-title">Plan Üretici</div>
+                  <div className="ai-card-sub">Detaylı kişiselleştirilmiş plan hazırla</div>
+                  <button className="btn-ai" style={{marginTop:8}} onClick={()=>navigate("/plan-uret")}>✦ Plan Üretici'ye Git →</button>
+                </div>
+              </div>
             </div>
+          )}
 
-            <div className="right-col">
-              <div className="ai-card">
-                <div className="ai-card-title">AI Plan Üret</div>
-                <div className="ai-card-sub">Saniyeler içinde kişiselleştirilmiş plan</div>
-                {hata && <div className="error-box">{hata}</div>}
-                <div className="ai-field">
-                  <label>Müşteri</label>
-                  <select value={aiForm.musteriId} onChange={e=>setAiForm({...aiForm,musteriId:e.target.value})}>
-                    <option value="">Seç...</option>
-                    {musteriler.map(c=><option key={c.id} value={c.id}>{c.ad} {c.soyad}</option>)}
-                  </select>
+          {/* MÜŞTERİLER */}
+          {activeNav === "musteriler" && (
+            <div className="content-grid">
+              <div className="card">
+                <div className="card-header">
+                  <div><div className="card-title">Müşteriler</div><div className="card-sub">{musteriler.length} kayıt</div></div>
                 </div>
-                <div className="ai-field">
-                  <label>Hedef</label>
-                  <select value={aiForm.hedef} onChange={e=>setAiForm({...aiForm,hedef:e.target.value})}>
-                    <option value="kilo-verme">Kilo verme</option>
-                    <option value="kas-yapma">Kas yapma</option>
-                    <option value="form-koruma">Form koruma</option>
-                  </select>
+                {yukleniyor ? (
+                  <div className="loading-row">Yükleniyor...</div>
+                ) : musteriler.length === 0 ? (
+                  <div className="empty-state">Henüz müşteri yok. "+ Yeni Müşteri" ile başla!</div>
+                ) : (
+                  <table>
+                    <thead>
+                      <tr><th>Müşteri</th><th>Hedef</th><th>Kilo</th><th>Durum</th><th>Portal</th></tr>
+                    </thead>
+                    <tbody>
+                      {musteriler.map(c=>(
+                        <tr key={c.id} onClick={()=>setSelectedClient(c)}>
+                          <td>
+                            <div className="client-name">
+                              <div className="client-avatar">{initials(c.ad,c.soyad)}</div>
+                              <div><div className="client-fullname">{c.ad} {c.soyad}</div><div className="client-email">{c.email}</div></div>
+                            </div>
+                          </td>
+                          <td>{c.hedef||"-"}</td>
+                          <td>{c.kilo?`${c.kilo} kg`:"-"}</td>
+                          <td><span className={`badge ${c.aktif?"active":"waiting"}`}>{c.aktif?"Aktif":"Pasif"}</span></td>
+                          <td onClick={e=>e.stopPropagation()}>
+                            <a className="portal-link" href={`/portal?email=${c.email}`} target="_blank" rel="noreferrer">Portal →</a>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+              <div className="right-col">
+                <div className="ai-card">
+                  <div className="ai-card-title">Plan Üretici</div>
+                  <div className="ai-card-sub">Detaylı plan için tıkla</div>
+                  <button className="btn-ai" style={{marginTop:8}} onClick={()=>navigate("/plan-uret")}>✦ Plan Üretici'ye Git →</button>
                 </div>
-                <div className="ai-row">
-                  <div className="ai-field"><label>Kalori</label><input placeholder="1500" value={aiForm.kalori} onChange={e=>setAiForm({...aiForm,kalori:e.target.value})} /></div>
-                  <div className="ai-field"><label>Süre (hafta)</label><input placeholder="4" value={aiForm.sure} onChange={e=>setAiForm({...aiForm,sure:e.target.value})} /></div>
-                </div>
-                <button className="btn-ai" onClick={handlePlanUret} disabled={planUretiyor}>
-                  {planUretiyor ? "⏳ Üretiliyor..." : "✦ Planı Üret"}
-                </button>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 

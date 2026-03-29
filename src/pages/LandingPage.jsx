@@ -233,7 +233,7 @@ export default function App() {
             <a className="nav-link" href="#ozellikler">Özellikler</a>
             <a className="nav-link" href="#nasil">Nasıl çalışır?</a>
             <a className="nav-link" href="#fiyat">Fiyatlar</a>
-            <button className="nav-link" style={{background:"none",border:"none",cursor:"pointer",fontFamily:"inherit"}} onClick={()=>navigate('/demo')}>Plan Üret — Dene</button>
+            <button className="nav-link" style={{background:"none",border:"none",cursor:"pointer",fontFamily:"inherit"}} onClick={()=>navigate('/plan-uret')}>Plan Üret — Dene</button>
             <button className="nav-cta" onClick={()=>navigate('/giris')}>Ücretsiz Başla</button>
           </div>
         </div>
@@ -252,7 +252,7 @@ export default function App() {
             </p>
             <div className="hero-actions">
               <button className="btn-hero" onClick={()=>navigate('/giris')}>14 Gün Ücretsiz Dene →</button>
-              <button className="btn-ghost" onClick={()=>navigate('/demo')}>Plan Üret — Dene</button>
+              <button className="btn-ghost" onClick={()=>navigate('/plan-uret')}>Plan Üret — Dene</button>
             </div>
             <div className="hero-trust">
               <div className="trust-avatars">

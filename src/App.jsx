@@ -88,8 +88,8 @@ export default function App() {
           }
         />
 
-        {/* 4b. DEMO — giriş gerektirmez */}
-        <Route path="/demo" element={<AIPlanUretici />} />
+        {/* 4b. DEMO — plan-uret'e yönlendir (giriş gerekli) */}
+        <Route path="/demo" element={<Navigate to="/plan-uret" replace />} />
 
         {/* 5. MÜŞTERİ PORTALI — giriş gerektirmez, link ile açılır */}
         <Route path="/portal/:portalLink" element={<PortalSayfa />} />
