@@ -23,7 +23,7 @@ const styles = `
   .hesabim-nav-item .icon { font-size: 16px; width: 22px; text-align: center; }
 
   /* Main */
-  .hesabim-main { margin-left: 240px; padding: 2rem 2.5rem; max-width: 800px; }
+  .hesabim-main { margin-left: 240px; padding: 2rem 2.5rem; }
   .hesabim-topbar { margin-bottom: 2rem; }
   .hesabim-topbar h1 { font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 400; color: #1a2e23; letter-spacing: -0.02em; }
   .hesabim-topbar p { font-size: 13px; color: #8a8378; margin-top: 4px; }
