@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase, getMusteriler, musteri_ekle, planKaydet, planlariGetir, signOut } from "../lib/supabase";
+import { supabase, getMusteriler, musteri_ekle, planKaydet, planlariGetir, signOut, olcumleriGetir } from "../lib/supabase";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -214,6 +214,8 @@ export default function Dashboard({ user: propUser }) {
   const [hedefFiltre, setHedefFiltre] = useState("Tümü");
   const [planSayisi, setPlanSayisi] = useState(0);
   const [yeniForm, setYeniForm] = useState({ ad: "", soyad: "", email: "", telefon: "", yas: "", cinsiyet: "Kadın", kilo: "", boy: "", hedef: "Kilo verme" });
+  const [tumOlcumler, setTumOlcumler] = useState({});
+  const [ilerlemeMusteri, setIlerlemeMusteri] = useState(null);
 
   useEffect(() => {
     const init = async () => {
@@ -566,35 +568,284 @@ export default function Dashboard({ user: propUser }) {
 
           {/* ═══════════════ İLERLEME ═══════════════ */}
           {activeNav === "ilerleme" && (
-            <div className="card">
-              <div className="coming-soon">
-                <div className="coming-icon">📊</div>
-                <div className="coming-title">İlerleme Takibi</div>
-                <div className="coming-sub">Müşterilerinizin kilo, ölçüm ve hedef ilerlemelerini grafik olarak takip edebileceğiniz alan çok yakında aktif olacak.</div>
-              </div>
-            </div>
+            <>
+              {musteriler.length === 0 ? (
+                <div className="card">
+                  <div className="empty-state">Henüz müşteri yok. Müşteri ekleyip ölçüm girildikçe ilerleme burada görünecek.</div>
+                </div>
+              ) : (
+                <>
+                  {/* Müşteri seçici */}
+                  <div className="search-bar">
+                    <select className="filter-select" style={{ flex: 1 }} value={ilerlemeMusteri?.id || ""}
+                      onChange={async (e) => {
+                        const m = musteriler.find(x => x.id === e.target.value);
+                        setIlerlemeMusteri(m || null);
+                        if (m) {
+                          const { data } = await supabase.from("olcumler").select("*").eq("musteri_id", m.id).order("tarih", { ascending: true });
+                          setTumOlcumler(prev => ({ ...prev, [m.id]: data || [] }));
+                        }
+                      }}>
+                      <option value="">Müşteri seçin...</option>
+                      {musteriler.map(m => <option key={m.id} value={m.id}>{m.ad} {m.soyad}</option>)}
+                    </select>
+                  </div>
+
+                  {!ilerlemeMusteri ? (
+                    <div className="card">
+                      <div className="empty-state">Yukarıdan bir müşteri seçerek ilerleme verilerini görüntüleyin.</div>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Müşteri özet kartları */}
+                      <div className="metrics" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
+                        <div className="metric-card">
+                          <div className="metric-top"><div className="metric-icon green">⚖️</div></div>
+                          <span className="metric-label">Mevcut Kilo</span>
+                          <div className="metric-val">{(tumOlcumler[ilerlemeMusteri.id]?.slice(-1)[0]?.kilo || ilerlemeMusteri.kilo || "-")} <span style={{fontSize:14}}>kg</span></div>
+                        </div>
+                        <div className="metric-card">
+                          <div className="metric-top"><div className="metric-icon blue">📏</div></div>
+                          <span className="metric-label">Bel Ölçüsü</span>
+                          <div className="metric-val">{(tumOlcumler[ilerlemeMusteri.id]?.slice(-1)[0]?.bel || "-")} <span style={{fontSize:14}}>cm</span></div>
+                        </div>
+                        <div className="metric-card">
+                          <div className="metric-top"><div className="metric-icon orange">📊</div></div>
+                          <span className="metric-label">Toplam Ölçüm</span>
+                          <div className="metric-val">{tumOlcumler[ilerlemeMusteri.id]?.length || 0}</div>
+                        </div>
+                      </div>
+
+                      {/* Kilo grafiği */}
+                      <div className="card">
+                        <div className="card-header">
+                          <div>
+                            <div className="card-title">📈 Kilo İlerleme — {ilerlemeMusteri.ad} {ilerlemeMusteri.soyad}</div>
+                            <div className="card-sub">Ölçüm bazlı kilo değişim takibi</div>
+                          </div>
+                        </div>
+                        {(!tumOlcumler[ilerlemeMusteri.id] || tumOlcumler[ilerlemeMusteri.id].length === 0) ? (
+                          <div className="empty-state">Bu müşteri için henüz ölçüm girilmemiş. Müşteri portalından veya ölçüm ekranından kilo girişi yapılabilir.</div>
+                        ) : (
+                          <div style={{ padding: "1.25rem 1.5rem" }}>
+                            {(() => {
+                              const olc = tumOlcumler[ilerlemeMusteri.id];
+                              const maxK = Math.max(...olc.map(o => o.kilo || 0), 1);
+                              const ilk = olc[0]?.kilo;
+                              const son = olc[olc.length - 1]?.kilo;
+                              const fark = ilk && son ? (son - ilk).toFixed(1) : null;
+                              return (
+                                <>
+                                  {fark && (
+                                    <div style={{ display: "flex", gap: 16, marginBottom: 16 }}>
+                                      <div style={{ background: "#EAF3DE", borderRadius: 10, padding: "8px 14px", fontSize: 13 }}>
+                                        Başlangıç: <strong>{ilk} kg</strong>
+                                      </div>
+                                      <div style={{ background: "#E3EEF9", borderRadius: 10, padding: "8px 14px", fontSize: 13 }}>
+                                        Şu an: <strong>{son} kg</strong>
+                                      </div>
+                                      <div style={{ background: fark < 0 ? "#EAF3DE" : "#FEF2F2", borderRadius: 10, padding: "8px 14px", fontSize: 13 }}>
+                                        Fark: <strong style={{ color: fark < 0 ? "#3B6D11" : "#DC2626" }}>{fark > 0 ? "+" : ""}{fark} kg</strong>
+                                      </div>
+                                    </div>
+                                  )}
+                                  {olc.map((o, i) => (
+                                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+                                      <span style={{ fontSize: 12, color: "#8a8378", minWidth: 80 }}>
+                                        {new Date(o.tarih).toLocaleDateString("tr-TR", { day: "numeric", month: "short" })}
+                                      </span>
+                                      <div style={{ flex: 1, background: "#f0ece4", borderRadius: 4, height: 10, overflow: "hidden" }}>
+                                        <div style={{ height: "100%", borderRadius: 4, background: "linear-gradient(90deg, #a8d5a2, #7ec477)", width: `${(o.kilo / maxK) * 100}%`, transition: "width 0.4s" }}></div>
+                                      </div>
+                                      <span style={{ fontSize: 13, fontWeight: 500, color: "#1a2e23", minWidth: 60, textAlign: "right" }}>{o.kilo} kg</span>
+                                    </div>
+                                  ))}
+                                </>
+                              );
+                            })()}
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </>
+              )}
+            </>
           )}
 
           {/* ═══════════════ RAPORLAR ═══════════════ */}
           {activeNav === "raporlar" && (
-            <div className="card">
-              <div className="coming-soon">
-                <div className="coming-icon">📋</div>
-                <div className="coming-title">Raporlar</div>
-                <div className="coming-sub">Aylık performans raporları, müşteri bazlı analizler ve beslenme planı istatistikleri burada yer alacak.</div>
+            <>
+              <div className="metrics" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
+                <div className="metric-card">
+                  <div className="metric-top"><div className="metric-icon green">👥</div></div>
+                  <span className="metric-label">Toplam Müşteri</span>
+                  <div className="metric-val">{musteriler.length}</div>
+                </div>
+                <div className="metric-card">
+                  <div className="metric-top"><div className="metric-icon blue">✓</div></div>
+                  <span className="metric-label">Aktif Müşteri</span>
+                  <div className="metric-val">{aktifSayisi}</div>
+                </div>
+                <div className="metric-card">
+                  <div className="metric-top"><div className="metric-icon orange">✦</div></div>
+                  <span className="metric-label">Toplam Plan</span>
+                  <div className="metric-val">{planSayisi}</div>
+                </div>
+                <div className="metric-card">
+                  <div className="metric-top"><div className="metric-icon purple">📊</div></div>
+                  <span className="metric-label">Ort. BMI</span>
+                  <div className="metric-val">{ortBmi}</div>
+                </div>
               </div>
-            </div>
+
+              {/* Hedef dağılımı */}
+              <div className="card">
+                <div className="card-header">
+                  <div>
+                    <div className="card-title">🎯 Hedef Dağılımı</div>
+                    <div className="card-sub">Müşterilerinizin hedef bazında dağılımı</div>
+                  </div>
+                </div>
+                <div style={{ padding: "1.25rem 1.5rem" }}>
+                  {Object.keys(hedefDagilimi).length === 0 ? (
+                    <div className="empty-state" style={{ padding: "1rem" }}>Henüz müşteri verisi yok.</div>
+                  ) : Object.entries(hedefDagilimi).map(([hedef, sayi]) => (
+                    <div key={hedef} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                      <span style={{ fontSize: 13, color: "#5a5650", width: 130, flexShrink: 0 }}>{hedef}</span>
+                      <div style={{ flex: 1, background: "#f0ece4", borderRadius: 100, height: 10, overflow: "hidden" }}>
+                        <div style={{ height: "100%", borderRadius: 100, background: `linear-gradient(90deg, ${hedef === "Kilo verme" ? "#a8d5a2, #7ec477" : hedef === "Kas yapma" ? "#93C5FD, #60A5FA" : hedef === "Sağlıklı beslenme" ? "#FCD34D, #F59E0B" : "#C4B5FD, #A78BFA"})`, width: `${(sayi / maxHedef) * 100}%` }}></div>
+                      </div>
+                      <span style={{ fontSize: 13, fontWeight: 500, color: "#1a2e23", width: 30, textAlign: "right" }}>{sayi}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* BMI dağılımı */}
+              <div className="card">
+                <div className="card-header">
+                  <div>
+                    <div className="card-title">📋 Müşteri BMI Raporu</div>
+                    <div className="card-sub">Tüm müşterilerinizin BMI değerleri</div>
+                  </div>
+                </div>
+                {musteriler.length === 0 ? (
+                  <div className="empty-state">Henüz müşteri yok.</div>
+                ) : (
+                  <table>
+                    <thead>
+                      <tr><th>Müşteri</th><th>Kilo</th><th>Boy</th><th>BMI</th><th>Kategori</th><th>Hedef</th></tr>
+                    </thead>
+                    <tbody>
+                      {musteriler.map(c => {
+                        const bmi = bmiHesapla(c.kilo, c.boy);
+                        const kat = bmiKategori(bmi);
+                        return (
+                          <tr key={c.id}>
+                            <td>
+                              <div className="client-name">
+                                <div className="client-avatar">{initials(c.ad, c.soyad)}</div>
+                                <div className="client-fullname">{c.ad} {c.soyad}</div>
+                              </div>
+                            </td>
+                            <td>{c.kilo ? `${c.kilo} kg` : "-"}</td>
+                            <td>{c.boy ? `${c.boy} cm` : "-"}</td>
+                            <td>{bmi || "-"}</td>
+                            <td>{bmi ? <span className={`badge ${kat.cls}`}>{kat.label}</span> : "-"}</td>
+                            <td>{c.hedef || "-"}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+
+              {/* Bu ay özeti */}
+              <div className="card">
+                <div className="card-header">
+                  <div>
+                    <div className="card-title">📅 Bu Ay Özeti</div>
+                    <div className="card-sub">{new Date().toLocaleDateString("tr-TR", { month: "long", year: "numeric" })}</div>
+                  </div>
+                </div>
+                <div style={{ padding: "1.25rem 1.5rem" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+                    <div style={{ background: "#EAF3DE", borderRadius: 12, padding: 16, textAlign: "center" }}>
+                      <div style={{ fontFamily: "'Fraunces', serif", fontSize: "1.5rem", color: "#3B6D11" }}>{buAyEklenen}</div>
+                      <div style={{ fontSize: 12, color: "#5a5650", marginTop: 4 }}>Yeni Müşteri</div>
+                    </div>
+                    <div style={{ background: "#E3EEF9", borderRadius: 12, padding: 16, textAlign: "center" }}>
+                      <div style={{ fontFamily: "'Fraunces', serif", fontSize: "1.5rem", color: "#1D4ED8" }}>{planSayisi}</div>
+                      <div style={{ fontSize: 12, color: "#5a5650", marginTop: 4 }}>Toplam Plan</div>
+                    </div>
+                    <div style={{ background: "#F0E8F8", borderRadius: 12, padding: 16, textAlign: "center" }}>
+                      <div style={{ fontFamily: "'Fraunces', serif", fontSize: "1.5rem", color: "#7C3AED" }}>{musteriler.filter(m => !m.aktif).length}</div>
+                      <div style={{ fontSize: 12, color: "#5a5650", marginTop: 4 }}>Pasif Müşteri</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
           )}
 
           {/* ═══════════════ ÖDEMELER ═══════════════ */}
           {activeNav === "odemeler" && (
-            <div className="card">
-              <div className="coming-soon">
-                <div className="coming-icon">💳</div>
-                <div className="coming-title">Ödemeler</div>
-                <div className="coming-sub">Müşteri ödemelerini takip edin, fatura oluşturun ve gelir raporlarınızı görüntüleyin. Bu alan çok yakında hizmetinizde.</div>
+            <>
+              <div className="metrics" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
+                <div className="metric-card">
+                  <div className="metric-top"><div className="metric-icon green">💰</div></div>
+                  <span className="metric-label">Aktif Abonelik</span>
+                  <div className="metric-val">{aktifSayisi}</div>
+                  <div className="metric-sub"><span className="up">Ödeme yapan müşteriler</span></div>
+                </div>
+                <div className="metric-card">
+                  <div className="metric-top"><div className="metric-icon orange">⏳</div></div>
+                  <span className="metric-label">Ödeme Bekleyen</span>
+                  <div className="metric-val">{musteriler.filter(m => !m.aktif).length}</div>
+                  <div className="metric-sub"><span className="neutral">Pasif müşteriler</span></div>
+                </div>
+                <div className="metric-card">
+                  <div className="metric-top"><div className="metric-icon purple">📊</div></div>
+                  <span className="metric-label">Tahsilat Oranı</span>
+                  <div className="metric-val">%{musteriler.length > 0 ? Math.round(aktifSayisi / musteriler.length * 100) : 0}</div>
+                </div>
               </div>
-            </div>
+
+              <div className="card">
+                <div className="card-header">
+                  <div>
+                    <div className="card-title">💳 Müşteri Ödeme Durumu</div>
+                    <div className="card-sub">Tüm müşterilerinizin ödeme ve abonelik durumu</div>
+                  </div>
+                </div>
+                {musteriler.length === 0 ? (
+                  <div className="empty-state">Henüz müşteri yok.</div>
+                ) : (
+                  <table>
+                    <thead>
+                      <tr><th>Müşteri</th><th>E-posta</th><th>Durum</th><th>Kayıt Tarihi</th></tr>
+                    </thead>
+                    <tbody>
+                      {musteriler.map(c => (
+                        <tr key={c.id}>
+                          <td>
+                            <div className="client-name">
+                              <div className="client-avatar">{initials(c.ad, c.soyad)}</div>
+                              <div className="client-fullname">{c.ad} {c.soyad}</div>
+                            </div>
+                          </td>
+                          <td>{c.email || "-"}</td>
+                          <td><span className={`badge ${c.aktif ? "active" : "waiting"}`}>{c.aktif ? "Aktif" : "Pasif"}</span></td>
+                          <td style={{ fontSize: 13 }}>{c.created_at ? new Date(c.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric" }) : "-"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </>
           )}
         </div>
       </div>
