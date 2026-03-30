@@ -12,6 +12,7 @@ import Dashboard from './pages/Dashboard'
 import AIPlanUretici from './pages/AIPlanUretici'
 import MusteriPortal from './pages/MusteriPortal'
 import MusteriPanel from './pages/MusteriPanel'
+import Hesabim from './pages/Hesabim'
 
 // ─── KORUNAN SAYFA ───────────────────────────────────────
 // Giriş yapılmadıysa /giris'e yönlendir
@@ -95,8 +96,19 @@ export default function App() {
         {/* 5. MÜŞTERİ PORTALI — giriş gerektirmez, link ile açılır */}
         <Route path="/portal/:portalLink" element={<PortalSayfa />} />
 
-        {/* 6. MÜŞTERİ PANELİ — müşteri takip ekranı */}
-        <Route path="/musteri-panel" element={<MusteriPanel />} />
+        {/* 6. HESABIM — kullanıcı profil/ayar paneli */}
+        <Route path="/hesabim" element={
+          <KorunmaSayfa user={user}>
+            <Hesabim user={user} />
+          </KorunmaSayfa>
+        } />
+
+        {/* 7. MÜŞTERİ PANELİ — müşteri takip ekranı */}
+        <Route path="/musteri-panel" element={
+          <KorunmaSayfa user={user}>
+            <MusteriPanel user={user} />
+          </KorunmaSayfa>
+        } />
 
         {/* Tanımlanmayan URL → ana sayfa */}
         <Route path="*" element={<Navigate to="/" replace />} />

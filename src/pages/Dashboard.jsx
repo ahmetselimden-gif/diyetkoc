@@ -341,15 +341,23 @@ export default function Dashboard({ user: propUser }) {
           </div>
 
           <div className="sidebar-user">
-            <div className="avatar">{user?.user_metadata?.ad?.[0] || "D"}</div>
+            <div className="avatar" style={{ cursor: 'pointer' }} onClick={() => navigate('/hesabim')}>{user?.user_metadata?.ad?.[0] || "D"}</div>
             <div className="user-info">
               <div className="name">{user?.user_metadata?.ad || user?.email?.split("@")[0] || "Kullanıcı"}</div>
               <div className="role">Diyetisyen</div>
-              <div style={{ cursor: 'pointer', fontSize: 11, color: 'rgba(245,242,236,0.35)', marginTop: 4, transition: 'color 0.15s' }}
-                onMouseEnter={e => e.target.style.color = 'rgba(245,242,236,0.7)'}
-                onMouseLeave={e => e.target.style.color = 'rgba(245,242,236,0.35)'}
-                onClick={async () => { await signOut(); window.location.href = '/giris'; }}>
-                Çıkış Yap
+              <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
+                <div style={{ cursor: 'pointer', fontSize: 11, color: 'rgba(245,242,236,0.35)', transition: 'color 0.15s' }}
+                  onMouseEnter={e => e.target.style.color = 'rgba(245,242,236,0.7)'}
+                  onMouseLeave={e => e.target.style.color = 'rgba(245,242,236,0.35)'}
+                  onClick={() => navigate('/hesabim')}>
+                  Hesabım
+                </div>
+                <div style={{ cursor: 'pointer', fontSize: 11, color: 'rgba(245,242,236,0.35)', transition: 'color 0.15s' }}
+                  onMouseEnter={e => e.target.style.color = 'rgba(245,242,236,0.7)'}
+                  onMouseLeave={e => e.target.style.color = 'rgba(245,242,236,0.35)'}
+                  onClick={async () => { await signOut(); window.location.href = '/giris'; }}>
+                  Çıkış Yap
+                </div>
               </div>
             </div>
           </div>
@@ -541,7 +549,7 @@ export default function Dashboard({ user: propUser }) {
                             <td>{c.kilo ? `${c.kilo} kg` : "-"}</td>
                             <td><span className={`badge ${c.aktif ? "active" : "waiting"}`}>{c.aktif ? "Aktif" : "Pasif"}</span></td>
                             <td onClick={e => e.stopPropagation()}>
-                              <a className="portal-link" href={`/portal?email=${c.email}`} target="_blank" rel="noreferrer">Portal</a>
+                              <a className="portal-link" href={`/portal/${c.portal_link || c.id}`} target="_blank" rel="noreferrer">Portal</a>
                             </td>
                             <td onClick={e => e.stopPropagation()}>
                               <button className="delete-btn" onClick={e => musteriSil(c.id, e)} title="Sil">🗑</button>
@@ -675,8 +683,21 @@ export default function Dashboard({ user: propUser }) {
                 ));
               })()}
             </div>
+            {selectedClient.portal_link && (
+              <div style={{ background: "#f5f2ec", borderRadius: 10, padding: "10px 14px", marginBottom: "1rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                <div>
+                  <div style={{ fontSize: 11, color: "#8a8378", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 500, marginBottom: 2 }}>Müşteri Portal Linki</div>
+                  <div style={{ fontSize: 12, color: "#1a2e23", fontFamily: "monospace", wordBreak: "break-all" }}>{window.location.origin}/portal/{selectedClient.portal_link}</div>
+                </div>
+                <button className="btn-outline" style={{ fontSize: 11, padding: '6px 12px', whiteSpace: 'nowrap' }}
+                  onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/portal/${selectedClient.portal_link}`); }}>
+                  Kopyala
+                </button>
+              </div>
+            )}
             <div className="modal-actions">
               <button className="btn-outline" onClick={() => setSelectedClient(null)}>Kapat</button>
+              <button className="btn-outline" onClick={() => { window.open(`/portal/${selectedClient.portal_link || selectedClient.id}`, '_blank'); }}>🔗 Portala Git</button>
               <button className="btn-primary" onClick={() => { navigate("/plan-uret"); setSelectedClient(null); }}>✦ Plan Üret</button>
             </div>
           </div>
