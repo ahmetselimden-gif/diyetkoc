@@ -253,7 +253,6 @@ export default function App() {
             </p>
             <div className="hero-actions">
               <button className="btn-hero" onClick={()=>navigate('/giris')}>14 Gün Ücretsiz Dene →</button>
-              <button className="btn-ghost" onClick={()=>navigate('/giris')}>Giriş Yap</button>
               <button className="btn-ghost" onClick={()=>navigate('/plan-uret')}>Plan Üret — Dene</button>
             </div>
             <div className="hero-trust">

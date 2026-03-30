@@ -43,10 +43,17 @@ export const getMusteriler = async (kocId) => {
   return { data, error }
 }
 
+export const portalLinkOlustur = () => {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
+  let link = ''
+  for (let i = 0; i < 12; i++) link += chars[Math.floor(Math.random() * chars.length)]
+  return link
+}
+
 export const musteri_ekle = async (musteri) => {
   const { data, error } = await supabase
     .from('musteriler')
-    .insert([musteri])
+    .insert([{ ...musteri, portal_link: portalLinkOlustur() }])
     .select()
   return { data, error }
 }
