@@ -13,6 +13,7 @@ import AIPlanUretici from './pages/AIPlanUretici'
 import MusteriPortal from './pages/MusteriPortal'
 import MusteriPanel from './pages/MusteriPanel'
 import Hesabim from './pages/Hesabim'
+import AdminPanel from './pages/AdminPanel'
 
 // ─── KORUNAN SAYFA ───────────────────────────────────────
 // Giriş yapılmadıysa /giris'e yönlendir
@@ -109,6 +110,16 @@ export default function App() {
             <MusteriPanel user={user} />
           </KorunmaSayfa>
         } />
+
+        {/* 8. ADMIN PANELİ — sadece ahmetselimden@gmail.com */}
+        <Route
+          path="/admin"
+          element={
+            <KorunmaSayfa user={user}>
+              <AdminPanel user={user} />
+            </KorunmaSayfa>
+          }
+        />
 
         {/* Tanımlanmayan URL → ana sayfa */}
         <Route path="*" element={<Navigate to="/" replace />} />
